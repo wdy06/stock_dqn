@@ -194,10 +194,10 @@ class DQN_class:
     def action_to_index(self, action):
         return self.enable_controller.index(action)
     
-    def save_model(self):
+    def save_model(self,epoch):
         print 'save model'
         self.model.to_cpu()
-        with open('model','wb') as o:
+        with open('model'+str(epoch),'wb') as o:
             pickle.dump(self.model,o)
         self.model.to_gpu()
         self.optimizer.setup(self.model)
@@ -266,7 +266,7 @@ class dqn_agent():  # RL-glue Process
         if self.DQN.initial_exploration < self.time and np.mod(self.time, self.DQN.target_model_update_freq) == 0:
             print "########### MODEL UPDATED ######################"
             self.DQN.target_model_update()
-            self.DQN.save_model()
+            
         # Simple text based visualization
         print ' Time Step %d /   ACTION  %d  /   REWARD %.4f   / EPSILON  %.6f  /   Q_max  %3f' % (self.time, action, reward, eps, np.max(Q_now.get()))
 
@@ -291,7 +291,7 @@ class dqn_agent():  # RL-glue Process
         if self.DQN.initial_exploration < self.time and np.mod(self.time, self.DQN.target_model_update_freq) == 0:
             print "########### MODEL UPDATED ######################"
             self.DQN.target_model_update()
-            self.DQN.save_model()
+            
             
         # Simple text based visualization
         print '  REWARD %.1f   / EPSILON  %.5f' % (np.sign(reward), self.epsilon)
