@@ -3,6 +3,7 @@ import glob
 import os
 import shutil
 import numpy as np
+import csv
 
 def get_nikkei255_file():
     
