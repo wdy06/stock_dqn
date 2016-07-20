@@ -5,6 +5,7 @@ import time
 import argparse
 import env_stockmarket
 import dqn_agent_nature
+import tools
 
 from chainer import cuda
 
@@ -22,7 +23,7 @@ if args.gpu >= 0:
 
 
 END_TRADING_DAY = 20081230
-n_epoch = 1
+n_epoch = 10
 
 start_time = time.clock()
 
@@ -30,17 +31,24 @@ Agent = dqn_agent_nature.dqn_agent(state_dimention=args.input_num*args.channel)
 Agent.agent_init()
 
 market = env_stockmarket.StockMarket()
+ave_Q = []
+ave_reward = []
 
 print 'epoch:', n_epoch
-files = os.listdir("./stockdata")
+files = os.listdir("./nikkei10")
 for epoch in range(1,n_epoch + 1):
     print('epoch', epoch),
     print 'time:%d[s]' % (time.clock() - start_time)
     print 'epoch!!!', epoch
-    raw_input()
+    
     for f in files:
         print f
         stock_agent = env_stockmarket.Stock_agent(Agent)
         traindata,trainprice = market.get_trainData(f,END_TRADING_DAY,args.input_num)
         stock_agent.trading(args.input_num,trainprice,traindata)
         
+    ave_Q.append(Agent.get_average_Q())
+    ave_reward.append(Agent.get_average_reward())
+    
+    tools.listToCsv('log.csv', ave_Q, ave_reward)
+    Agent.DQN.save_model(epoch)

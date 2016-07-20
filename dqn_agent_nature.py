@@ -213,7 +213,8 @@ class dqn_agent():  # RL-glue Process
 
         self.time = 0
         self.epsilon = 1.0  # Initial exploratoin rate
-
+        self.max_Q_list = []
+        self.reward_list = []
         # Pick a DQN from DQN_class
         self.DQN = DQN_class(state_dimention=self.state_dimention)  # default is for "Pong".
 
@@ -231,7 +232,8 @@ class dqn_agent():  # RL-glue Process
         self.lastAction = action
         self.last_state = self.state.copy()
         self.last_observation = observation.copy()
-
+        self.max_Q_list.append(np.max(Q_now.get()))
+        
         return action
 
     def agent_step(self, reward, observation):
@@ -255,7 +257,8 @@ class dqn_agent():  # RL-glue Process
 
         # Generate an Action by e-greedy action selection
         action, Q_now = self.DQN.e_greedy(state_, eps)
-
+        self.max_Q_list.append(np.max(Q_now.get()))
+        self.reward_list.append(reward)
 
         # Learning Phase
         if self.policyFrozen is False:  # Learning ON/OFF
@@ -282,6 +285,7 @@ class dqn_agent():  # RL-glue Process
 
     def agent_end(self, reward):  # Episode Terminated
 
+        self.reward_list.append(reward)
         # Learning Phase
         if self.policyFrozen is False:  # Learning ON/OFF
             self.DQN.stockExperience(self.time, self.last_state, self.lastAction, reward, self.last_state, True)
@@ -299,7 +303,19 @@ class dqn_agent():  # RL-glue Process
         # Time count
         if self.policyFrozen is False:
             self.time += 1
-
+    
+    def init_max_Q_list(self):
+        self.max_Q_list = []
+        
+    def init_reward_list(self):
+        self.reward_list = []
+        
+    def get_average_Q(self):
+        return sum(self.max_Q_list)/len(self.max_Q_list)
+        
+    def get_average_reward(self):
+        return sum(self.reward_list)/len(self.reward_list)
+        
     def agent_cleanup(self):
         pass
 
