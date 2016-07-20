@@ -33,10 +33,12 @@ Agent.agent_init()
 market = env_stockmarket.StockMarket()
 ave_Q = []
 ave_reward = []
+ave_profit = []
 
 print 'epoch:', n_epoch
 files = os.listdir("./nikkei10")
 for epoch in range(1,n_epoch + 1):
+    profit_list = []
     print('epoch', epoch),
     print 'time:%d[s]' % (time.clock() - start_time)
     print 'epoch!!!', epoch
@@ -50,10 +52,12 @@ for epoch in range(1,n_epoch + 1):
             print 'skip',f
             continue
             
-        stock_agent.trading(args.input_num,trainprice,traindata)
+        profit_ratio = stock_agent.trading(args.input_num,trainprice,traindata)
+        profit_list.append(profit_ratio)
         
     ave_Q.append(Agent.get_average_Q())
     ave_reward.append(Agent.get_average_reward())
+    ave_profit.append(sum(profit_list)/len(profit_list))
     
-    tools.listToCsv('log.csv', ave_Q, ave_reward)
+    tools.listToCsv('log.csv', ave_Q, ave_reward,ave_profit)
     Agent.DQN.save_model(epoch)
