@@ -44,7 +44,12 @@ for epoch in range(1,n_epoch + 1):
     for f in files:
         print f
         stock_agent = env_stockmarket.Stock_agent(Agent)
-        traindata,trainprice = market.get_trainData(f,END_TRADING_DAY,args.input_num)
+        try:
+            traindata,trainprice = market.get_trainData(f,END_TRADING_DAY,args.input_num)
+        except:
+            print 'skip',f
+            continue
+            
         stock_agent.trading(args.input_num,trainprice,traindata)
         
     ave_Q.append(Agent.get_average_Q())

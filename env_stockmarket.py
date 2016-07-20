@@ -135,7 +135,8 @@ class StockMarket():
         except:
             print "can't find start_test_day"
             #start_test_dayが見つからなければ次のファイルへ
-            return -1,-1
+            raise Exception('cannot find start_test_day')
+            
         
         cutpoint = iday - input_num + 1
         
@@ -181,7 +182,8 @@ class StockMarket():
             t_min = np.nanmin(macd_list[:cutpoint])
             t_max = np.nanmax(macd_list[:cutpoint])
             if (t_min == np.nan) or (t_max == np.nan):
-                return -1,-1
+                
+                raise Exception('np.nan error')
             make_dataset.normalizationArray(macd_list,t_min,t_max)
             make_dataset.normalizationArray(signal,t_min,t_max)
             all_data.append(macd_list)
