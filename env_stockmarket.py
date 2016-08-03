@@ -30,6 +30,14 @@ class Stock_agent():
             
             return float(nowprice - buyprice) / buyprice
         
+    def get_prospect_profit(self,havestock, nowprice, buyprice):
+        #株を持っている場合の見込み利益を返す
+        if havestock == 0:
+            return 0
+        elif havestock == 1:
+            
+            return float(nowprice - buyprice) / buyprice
+        
 
     def calcstocks(self,money, price):
         i = 0
@@ -53,7 +61,10 @@ class Stock_agent():
             #print i,i-term
             observation = copy.deepcopy(traindata[:,i-term+1:i+1])
             #print observation
+            prospect_profit = self.get_prospect_profit(self.havestock,price[i],self.buyprice)
+            agent_status = np.array([self.havestock,prospect_profit])
             observation = observation.reshape(1,-1)#一次元配列に変形
+            observation = np.array([np.r_[observation[0], agent_status]])
             #print observation
             reward = self.get_reward(self.action, price[i-1], self.buyprice)
             
@@ -88,6 +99,7 @@ class Stock_agent():
                     self.money = self.money + self.stock * price[i]
                     self.stock = 0
                     self.havestock = 0
+                    #self.buyprice = 0
                 else:#株を持っていないなら
                     #order.append(0)#何もしない
                     self.action = 0

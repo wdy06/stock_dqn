@@ -23,11 +23,11 @@ if args.gpu >= 0:
 
 
 END_TRADING_DAY = 20081230
-n_epoch = 10
+n_epoch = 1000
 
 start_time = time.clock()
 
-Agent = dqn_agent_nature.dqn_agent(state_dimention=args.input_num*args.channel)
+Agent = dqn_agent_nature.dqn_agent(state_dimention=args.input_num * args.channel + 2)
 Agent.agent_init()
 
 market = env_stockmarket.StockMarket()
@@ -60,4 +60,6 @@ for epoch in range(1,n_epoch + 1):
     ave_profit.append(sum(profit_list)/len(profit_list))
     
     tools.listToCsv('log.csv', ave_Q, ave_reward,ave_profit)
-    Agent.DQN.save_model(epoch)
+    
+    if epoch % 10 == 0:
+        Agent.DQN.save_model(epoch)
