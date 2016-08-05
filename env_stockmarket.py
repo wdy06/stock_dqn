@@ -5,6 +5,7 @@ import make_dataset
 import copy
 import csv
 import numpy as np
+import talib as ta
 
 class Stock_agent():
     
@@ -147,8 +148,7 @@ class StockMarket():
         except:
             print "can't find start_test_day"
             #start_test_dayが見つからなければ次のファイルへ
-            raise Exception('cannot find start_test_day')
-            
+            raise Exception('cannot find start_test_day')            
         
         cutpoint = iday - input_num + 1
         
@@ -194,7 +194,7 @@ class StockMarket():
             t_min = np.nanmin(macd_list[:cutpoint])
             t_max = np.nanmax(macd_list[:cutpoint])
             if (t_min == np.nan) or (t_max == np.nan):
-                
+                print 'np.nan error'
                 raise Exception('np.nan error')
             make_dataset.normalizationArray(macd_list,t_min,t_max)
             make_dataset.normalizationArray(signal,t_min,t_max)

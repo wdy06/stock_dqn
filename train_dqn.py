@@ -17,8 +17,35 @@ parser.add_argument('--input_num', '-in', default=60, type=int,
 parser.add_argument('--channel', '-c', default=1, type=int,
                     help='data channel')
 parser.add_argument('--experiment_name', '-n', default='experiment',type=str,help='experiment name')
-
+parser.add_argument('--u_vol', '-vol',type=int,default=0,
+                    help='use vol or no')
+parser.add_argument('--u_ema', '-ema',type=int,default=0,
+                    help='use ema or no')
+parser.add_argument('--u_rsi', '-rsi',type=int,default=0,
+                    help='use rsi or no')
+parser.add_argument('--u_macd', '-macd',type=int,default=0,
+                    help='use macd or no')
+parser.add_argument('--u_stoch', '-stoch',type=int,default=0,
+                    help='use stoch or no')
+parser.add_argument('--u_wil', '-wil',type=int,default=0,
+                    help='use wil or no')
+                    
 args = parser.parse_args()
+
+if args.u_vol == 0: u_vol = False
+elif args.u_vol == 1: u_vol = True
+if args.u_ema == 0: u_ema = False
+elif args.u_ema == 1: u_ema = True
+if args.u_rsi == 0: u_rsi = False
+elif args.u_rsi == 1: u_rsi = True
+if args.u_macd == 0: u_macd = False
+elif args.u_macd == 1: u_macd = True
+if args.u_stoch == 0: u_stoch = False
+elif args.u_stoch == 1: u_stoch = True
+if args.u_wil == 0: u_wil = False
+elif args.u_wil == 1: u_wil = True
+
+
 if args.gpu >= 0:
     cuda.check_cuda_available()
     print "use gpu"
@@ -41,7 +68,7 @@ start_time = time.clock()
 Agent = dqn_agent_nature.dqn_agent(state_dimention=args.input_num * args.channel + 2)
 Agent.agent_init()
 
-market = env_stockmarket.StockMarket()
+market = env_stockmarket.StockMarket(u_vol=u_vol,u_ema=u_ema,u_rsi=u_rsi,u_macd=u_macd,u_stoch=u_stoch,u_wil=u_wil)
 ave_Q = []
 ave_reward = []
 ave_profit = []
@@ -57,6 +84,7 @@ for epoch in range(1,n_epoch + 1):
     for f in files:
         print f
         stock_agent = env_stockmarket.Stock_agent(Agent)
+        
         try:
             traindata,trainprice = market.get_trainData(f,END_TRADING_DAY,args.input_num)
         except:
