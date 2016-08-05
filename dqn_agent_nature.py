@@ -194,10 +194,10 @@ class DQN_class:
     def action_to_index(self, action):
         return self.enable_controller.index(action)
     
-    def save_model(self,epoch):
+    def save_model(self, folder_name, epoch):
         print 'save model'
         self.model.to_cpu()
-        with open('model'+str(epoch),'wb') as o:
+        with open(folder_name+'model'+str(epoch),'wb') as o:
             pickle.dump(self.model,o)
         self.model.to_gpu()
         self.optimizer.setup(self.model)

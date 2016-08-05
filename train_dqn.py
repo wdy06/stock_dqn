@@ -16,10 +16,21 @@ parser.add_argument('--input_num', '-in', default=60, type=int,
                     help='input node number')
 parser.add_argument('--channel', '-c', default=1, type=int,
                     help='data channel')
+parser.add_argument('--experiment_name', '-n', default='experiment',type=str,help='experiment name')
+
 args = parser.parse_args()
 if args.gpu >= 0:
     cuda.check_cuda_available()
     print "use gpu"
+
+folder = './train_result/' + args.experiment_name + '/'
+if os.path.isdir(folder) == True:
+    print 'this experiment name is existed'
+    print 'please change experiment name'
+    raw_input()
+else:
+    print 'make experiment folder'
+    os.makedirs(folder)
 
 
 END_TRADING_DAY = 20081230
@@ -59,7 +70,7 @@ for epoch in range(1,n_epoch + 1):
     ave_reward.append(Agent.get_average_reward())
     ave_profit.append(sum(profit_list)/len(profit_list))
     
-    tools.listToCsv('log.csv', ave_Q, ave_reward,ave_profit)
+    tools.listToCsv(folder+'log.csv', ave_Q, ave_reward,ave_profit)
     
     if epoch % 10 == 0:
-        Agent.DQN.save_model(epoch)
+        Agent.DQN.save_model(folder, epoch)
