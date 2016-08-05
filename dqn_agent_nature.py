@@ -38,7 +38,7 @@ class DQN_class:
     initial_exploration = 100#10**4  # Initial exploratoin. original: 5x10^4
     replay_size = 1000  # Replay (batch) size
     target_model_update_freq = 10**4  # Target update frequancy. original: 10^4
-    data_size = 10**4  # Data size of history. original: 10^6
+    data_size = 10**5  # Data size of history. original: 10^6
     input_term = 30 #input stock data term
     def __init__(self, state_dimention, enable_controller=[1, -1, 0]):
         self.num_of_actions = len(enable_controller)
@@ -315,6 +315,12 @@ class dqn_agent():  # RL-glue Process
         
     def get_average_reward(self):
         return sum(self.reward_list)/len(self.reward_list)
+    
+    def get_variance_Q(self):
+        return np.var(np.array(self.max_Q_list))
+        
+    def get_varance_reward(self):
+        return np.var(np.array(self.reward_list))
         
     def agent_cleanup(self):
         pass
