@@ -79,6 +79,8 @@ var_profit = []
 print 'epoch:', n_epoch
 files = os.listdir("./nikkei10")
 for epoch in range(1,n_epoch + 1):
+    Agent.init_max_Q_list()
+    Agent.init_reward_list()
     profit_list = []
     print('epoch', epoch),
     print 'time:%d[s]' % (time.clock() - start_time)
