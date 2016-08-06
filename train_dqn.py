@@ -81,9 +81,10 @@ market = env_stockmarket.StockMarket(u_vol=u_vol,u_ema=u_ema,u_rsi=u_rsi,u_macd=
 ave_Q = []
 ave_reward = []
 ave_profit = []
-var_Q = []
-var_reward = []
-var_profit = []
+epsilon_list = []
+#var_Q = []
+#var_reward = []
+#var_profit = []
 
 print 'epoch:', n_epoch
 files = os.listdir("./nikkei10")
@@ -111,11 +112,12 @@ for epoch in range(1,n_epoch + 1):
     ave_Q.append(Agent.get_average_Q())
     ave_reward.append(Agent.get_average_reward())
     ave_profit.append(sum(profit_list)/len(profit_list))
-    var_Q.append(Agent.get_variance_Q())
-    var_reward.append(Agent.get_varance_reward())
-    var_profit.append(np.var(np.array(profit_list)))
+    epsilon_list.append(Agent.epsilon)
+    #var_Q.append(Agent.get_variance_Q())
+    #var_reward.append(Agent.get_varance_reward())
+    #var_profit.append(np.var(np.array(profit_list)))
     
-    tools.listToCsv(folder+'log.csv', ave_Q, var_Q, ave_reward, var_reward, ave_profit, var_profit)
+    tools.listToCsv(folder+'log.csv', ave_Q, ave_reward, ave_profit,epsilon_list)
     
     if epoch % 1 == 0:
         #Agent.DQN.save_model(folder, epoch)
