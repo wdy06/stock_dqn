@@ -8,6 +8,15 @@ import dqn_agent_nature
 import tools
 import numpy as np
 from chainer import cuda
+import pickle
+
+def save_agent(agent,folder_name,epoch):
+
+    print 'save agent'
+    with open(folder_name+'Agent'+str(epoch),'wb') as o:
+        pickle.dump(agent,o)
+        
+    
 
 parser = argparse.ArgumentParser(description='Chainer example: MNIST')
 parser.add_argument('--gpu', '-g', default=-1, type=int,
@@ -108,5 +117,6 @@ for epoch in range(1,n_epoch + 1):
     
     tools.listToCsv(folder+'log.csv', ave_Q, var_Q, ave_reward, var_reward, ave_profit, var_profit)
     
-    if epoch % 10 == 0:
-        Agent.DQN.save_model(folder, epoch)
+    if epoch % 1 == 0:
+        #Agent.DQN.save_model(folder, epoch)
+        save_agent(Agent,folder,epoch)
