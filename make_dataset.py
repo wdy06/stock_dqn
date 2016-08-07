@@ -81,6 +81,27 @@ def normalizationArray2(array,amin,amax):
         for i,element in enumerate(array):
             array[i] = float(0)
             
+def normalizationArray3(array,amin,amax):
+    #processing array index to 0.1~0.9
+    amin = float(amin)
+    amax = float(amax)
+    if amin != amax:
+        for i,element in enumerate(array):
+            if element > amax:
+                array[i] = 0.9
+            elif element < amin:
+                array[i] = 0.1
+            elif element == np.nan:
+                array[i] = np.nan
+            else:
+                ret = 0.1 + (0.8*(float(element) - amin) / (amax - amin))
+                array[i] = ret
+    #期間の最大最小が等しい場合はすべての要素を0.5とする
+    elif amin == amax:
+        for i,element in enumerate(array):
+            array[i] = float(0.45)
+            
+
 def denormalizationArray(array,amin,amax):
     amin = float(amin)
     amax = float(amax)
