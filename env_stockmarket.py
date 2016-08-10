@@ -153,8 +153,8 @@ class StockMarket():
         cutpoint = iday - input_num + 1
         
         rec = copy.copy(_close)
-        price_min = min(_close)
-        price_max = max(_close)
+        price_min = min(_close[:cutpoint])
+        price_max = max(_close[:cutpoint])
         make_dataset.normalizationArray(rec,price_min,price_max)
         all_data.append(rec)
         
