@@ -227,6 +227,96 @@ class StockMarket():
         
         return traindata,trainprice
     
+    def get_testData(self,filename,start_test_day,input_num,stride=1):
+        
+        all_data = []
+        testdata = []
+        
+        #print tech_name
+        filepath = "./stockdata/%s" % filename
+        _time,_open,_max,_min,_close,_volume,_keisu,_shihon = self.readfile(filepath)
+
+        #start_test_dayでデータセットを分割
+        try:
+            iday = _time.index(start_test_day)
+        except:
+            print "can't find start_test_day"
+            #start_test_dayが見つからなければ次のファイルへ
+            raise Exception('cannot find start_test_day')            
+        
+        cutpoint = iday - input_num + 1
+        
+        rec = copy.copy(_close)
+        price_min = min(_close[:cutpoint])
+        price_max = max(_close[:cutpoint])
+        make_dataset.normalizationArray(rec,price_min,price_max)
+        all_data.append(rec)
+        
+        
+        if self.u_vol == True:
+            vol_list = _volume
+            t_min = min(vol_list[:cutpoint])
+            t_max = max(vol_list[:cutpoint])
+            make_dataset.normalizationArray(vol_list,t_min,t_max)
+            all_data.append(vol_list)
+            
+        if self.u_ema == True:
+            ema_list1 = ta.EMA(np.array(_close, dtype='f8'), timeperiod = 10)
+            ema_list2 = ta.EMA(np.array(_close, dtype='f8'), timeperiod = 25)
+            ema_list1 = np.ndarray.tolist(ema_list1)
+            ema_list2 = np.ndarray.tolist(ema_list2)
+            t_min = min(_close[:cutpoint])
+            t_max = max(_close[:cutpoint])
+            
+            make_dataset.normalizationArray(ema_list1,t_min,t_max)
+            make_dataset.normalizationArray(ema_list2,t_min,t_max)
+            all_data.append(ema_list1)
+            all_data.append(ema_list2)
+            
+        if  self.u_rsi == True:
+            rsi_list = ta.RSI(np.array(_close, dtype='f8'), timeperiod = 14)
+            rsi_list = np.ndarray.tolist(rsi_list)
+            
+            make_dataset.normalizationArray(rsi_list,0,100)
+            all_data.append(rsi_list)
+            
+        if self.u_macd == True:
+            macd_list,signal,hist = ta.MACD(np.array(_close, dtype='f8'), fastperiod = 12, slowperiod = 26, signalperiod = 9)
+            macd_list = np.ndarray.tolist(macd_list)
+            signal = np.ndarray.tolist(signal)
+            
+            t_min = np.nanmin(macd_list[:cutpoint])
+            t_max = np.nanmax(macd_list[:cutpoint])
+            if (t_min == np.nan) or (t_max == np.nan):
+                print 'np.nan error'
+                raise Exception('np.nan error')
+            make_dataset.normalizationArray(macd_list,t_min,t_max)
+            make_dataset.normalizationArray(signal,t_min,t_max)
+            all_data.append(macd_list)
+            all_data.append(signal)
+            
+        if self.u_stoch == True:
+            slowk,slowd = ta.STOCH(np.array(_max, dtype='f8'),np.array(_min, dtype='f8'),np.array(_close, dtype='f8'), fastk_period = 5,slowk_period=3,slowd_period=3)
+            slowk = np.ndarray.tolist(slowk)
+            slowd = np.ndarray.tolist(slowd)
+            make_dataset.normalizationArray(slowk,0,100)
+            make_dataset.normalizationArray(slowd,0,100)
+            all_data.append(slowk)
+            all_data.append(slowd)
+            
+        if self.u_wil == True:
+            will = ta.WILLR(np.array(_max, dtype='f8'),np.array(_min, dtype='f8'),np.array(_close, dtype='f8'), timeperiod = 14)
+            will = np.ndarray.tolist(will)
+            make_dataset.normalizationArray(will,-100,0)
+            all_data.append(will)
+        
+        all_data = np.array(all_data)
+        
+        testdata = all_data[:,cutpoint:]
+        testprice = _close[cutpoint:]
+        
+        return testdata,testprice
+    
     def readfile(self,filename):
         _time = []
         _open = []
