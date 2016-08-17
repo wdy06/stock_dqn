@@ -34,17 +34,17 @@ parser.add_argument('--historysize', '-D', type=int, default=10**5,
                     help='data size of history')
 parser.add_argument('--epsilon_discount_size', '-eds', type=int, default=10**6,
                     help='data size of history')
-parser.add_argument('--u_vol', '-vol',type=int,default=0,
+parser.add_argument('--u_vol', '-vol',type=int,default=1,
                     help='use vol or no')
-parser.add_argument('--u_ema', '-ema',type=int,default=0,
+parser.add_argument('--u_ema', '-ema',type=int,default=1,
                     help='use ema or no')
-parser.add_argument('--u_rsi', '-rsi',type=int,default=0,
+parser.add_argument('--u_rsi', '-rsi',type=int,default=1,
                     help='use rsi or no')
 parser.add_argument('--u_macd', '-macd',type=int,default=0,
                     help='use macd or no')
-parser.add_argument('--u_stoch', '-stoch',type=int,default=0,
+parser.add_argument('--u_stoch', '-stoch',type=int,default=1,
                     help='use stoch or no')
-parser.add_argument('--u_wil', '-wil',type=int,default=0,
+parser.add_argument('--u_wil', '-wil',type=int,default=1,
                     help='use wil or no')
                     
 args = parser.parse_args()
