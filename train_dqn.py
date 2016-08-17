@@ -21,11 +21,19 @@ def save_agent(agent,folder_name,epoch):
 parser = argparse.ArgumentParser(description='Chainer example: MNIST')
 parser.add_argument('--gpu', '-g', default=-1, type=int,
                     help='GPU ID (negative value indicates CPU)')
+parser.add_argument('--data_folder', '-f', type=str, default='./nikkei225',
+                    help='data size of history')
 parser.add_argument('--input_num', '-in', default=60, type=int,
                     help='input node number')
 parser.add_argument('--channel', '-c', default=1, type=int,
                     help='data channel')
 parser.add_argument('--experiment_name', '-n', default='experiment',type=str,help='experiment name')
+parser.add_argument('--batchsize', '-B', type=int, default=1000,
+                    help='replay size')
+parser.add_argument('--historysize', '-D', type=int, default=10**5,
+                    help='data size of history')
+parser.add_argument('--epsilon_discount_size', '-eds', type=int, default=10**6,
+                    help='data size of history')
 parser.add_argument('--u_vol', '-vol',type=int,default=0,
                     help='use vol or no')
 parser.add_argument('--u_ema', '-ema',type=int,default=0,
@@ -74,7 +82,7 @@ n_epoch = 1000
 
 start_time = time.clock()
 
-Agent = dqn_agent_nature.dqn_agent(state_dimention=args.input_num * args.channel + 2)
+Agent = dqn_agent_nature.dqn_agent(state_dimention=args.input_num * args.channel + 2,batchsize=args.batchsize,historysize=args.historysize,epsilon_discount_size=args.epsilon_discount_size)
 Agent.agent_init()
 
 market = env_stockmarket.StockMarket(u_vol=u_vol,u_ema=u_ema,u_rsi=u_rsi,u_macd=u_macd,u_stoch=u_stoch,u_wil=u_wil)
@@ -87,7 +95,20 @@ epsilon_list = []
 #var_profit = []
 
 print 'epoch:', n_epoch
-files = os.listdir("./nikkei10")
+
+with open(folder + 'settings.txt', 'wb') as o:
+    o.write('epoch:' + str(n_epoch) + '\n')
+    o.write('data_folder:' + str(args.data_folder) + '\n')
+    o.write('input:' + str(args.input_num) + '\n')
+    o.write('channel:' + str(args.channel) + '\n')
+    #o.write('hidden:' + str(model.hidden_num) + '\n')
+    #o.write('layer_num:' + str(model.layer_num) + '\n')
+    o.write('batchsize:' + str(args.batchsize) + '\n')
+    o.write('historysize:' + str(args.historysize) + '\n')
+    o.write('epsilon_discount_size:' + str(args.epsilon_discount_size) + '\n')
+    
+    
+files = os.listdir(args.data_folder)
 for epoch in range(1,n_epoch + 1):
     Agent.init_max_Q_list()
     Agent.init_reward_list()

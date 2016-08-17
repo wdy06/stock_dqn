@@ -13,36 +13,23 @@ import scipy.misc as spm
 from chainer import cuda, FunctionSet, Variable, optimizers
 import chainer.functions as F
 
-from rlglue.agent.Agent import Agent
-from rlglue.agent import AgentLoader as AgentLoader
-from rlglue.types import Action
 
-
-
-parser = argparse.ArgumentParser(description='Chainer example: MNIST')
-parser.add_argument('--gpu', '-g', default=-1, type=int,
-                    help='GPU ID (negative value indicates CPU)')
-parser.add_argument('--arch', '-a', default='dnn_4',
-                    help='dnn architecture \
-                    (snn, dnn_4)')
-parser.add_argument('--input', '-in', default=60, type=int,
-                    help='input node number')
-parser.add_argument('--channel', '-c', default=1, type=int,
-                    help='data channel')
-                    
 
     
 class DQN_class:
     # Hyper-Parameters
     gamma = 0.99  # Discount factor
     initial_exploration = 100#10**4  # Initial exploratoin. original: 5x10^4
-    replay_size = 1000  # Replay (batch) size
+    #replay_size = 1000  # Replay (batch) size
     target_model_update_freq = 10**4  # Target update frequancy. original: 10^4
-    data_size = 10**5  # Data size of history. original: 10^6
-    input_term = 30 #input stock data term
-    def __init__(self, state_dimention, enable_controller=[1, -1, 0]):
+    #data_size = 10**5  # Data size of history. original: 10^6
+    
+    def __init__(self, state_dimention,batchsize,historysize, enable_controller=[1, -1, 0]):
         self.num_of_actions = len(enable_controller)
         self.enable_controller = enable_controller  # Default setting : "Pong"
+        self.replay_size = batchsize
+        self.data_size = historysize
+        
         self.state_dimention = state_dimention
         print "Initializing DQN..."
         #	Initialization of Chainer 1.1.0 or older.
@@ -203,10 +190,14 @@ class DQN_class:
         self.optimizer.setup(self.model)
 
 class dqn_agent():  # RL-glue Process
-    lastAction = Action()
+    #lastAction = Action()
     policyFrozen = False
-    def __init__(self,state_dimention):
+    def __init__(self,state_dimention,batchsize,historysize,epsilon_discount_size):
         self.state_dimention = state_dimention
+        self.batchsize = batchsize
+        self.historysize = historysize
+        self.epsilon_discount_size = epsilon_discount_size
+        
     def agent_init(self):
         # Some initializations for rlglue
         #self.lastAction = Action()
@@ -216,7 +207,7 @@ class dqn_agent():  # RL-glue Process
         self.max_Q_list = []
         self.reward_list = []
         # Pick a DQN from DQN_class
-        self.DQN = DQN_class(state_dimention=self.state_dimention)  # default is for "Pong".
+        self.DQN = DQN_class(state_dimention=self.state_dimention,batchsize=self.batchsize,historysize=self.historysize)  # default is for "Pong".
 
     def agent_start(self, observation):
 
@@ -244,7 +235,7 @@ class dqn_agent():  # RL-glue Process
         # Exploration decays along the time sequence
         if self.policyFrozen is False:  # Learning ON/OFF
             if self.DQN.initial_exploration < self.time:
-                self.epsilon -= 1.0/10**6
+                self.epsilon -= 1.0/self.epsilon_discount_size
                 if self.epsilon < 0.1:
                     self.epsilon = 0.1
                 eps = self.epsilon
