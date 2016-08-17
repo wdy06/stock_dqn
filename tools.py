@@ -38,6 +38,23 @@ def listToCsv(filename,*args):
     fw.close()
     
     print 'saved ' + str(filename)
+    
+def order2buysell(order,price):
+    buy_point = []
+    sell_point = []
+    for i,o in enumerate(order):
+        if o == 1:
+            buy_point.append(price[i])
+            sell_point.append(np.nan)
+        elif o == -1:
+            buy_point.append(np.nan)
+            sell_point.append(price[i])
+        elif o == 0:
+            buy_point.append(np.nan)
+            sell_point.append(np.nan)
+            
+    return buy_point, sell_point
+    
 if __name__ == "__main__":
     
     get_nikkei255_file()
