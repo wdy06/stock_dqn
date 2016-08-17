@@ -120,6 +120,78 @@ class Stock_agent():
         
         return profit_ratio
             
+    def trading_test(self,term, price, traindata):
+        #総資産推移や売買履歴を出力
+        start_p = self.money
+        end_p = 0
+        if price == -1:
+            return 'error'
+            
+        proper = []
+        order = []
+        stocks = []
+        price_data = []
+        for i in xrange(term - 1,len(price)):
+
+            observation = copy.deepcopy(traindata[:,i-term+1:i+1])
+            prospect_profit = self.get_prospect_profit(self.havestock,price[i],self.buyprice)
+            agent_status = np.array([self.havestock,prospect_profit])
+            observation = observation.reshape(1,-1)#一次元配列に変形
+            observation = np.array([np.r_[observation[0], agent_status]])
+            reward = self.get_reward(self.action, price[i-1], self.buyprice)
+            
+            if i == (term - 1):
+                print 'agent start!'
+                Q_action = self.Agent.agent_start(observation)
+            elif i == (len(price) - 1):
+                print 'agent end!'
+                Q_action = self.Agent.agent_end(reward)
+            else:
+                Q_action = self.Agent.agent_step(reward, observation)
+                
+            price_data.append(price[i])
+            
+            if Q_action == 1:#buy_pointのとき
+                s = self.calcstocks(self.money, price[i])#現在の所持金で買える株数を計算
+                
+                if s > 0:#現在の所持金で株が買えるなら
+                    self.havestock = 1
+                    self.action = 1
+                    order.append(1)#買う
+                    self.stock += s
+                    self.buyprice = price[i]
+                    self.money = self.money - s * self.buyprice
+                else:
+                    order.append(0)#買わない
+                    self.action = 0
+                    
+            elif Q_action == -1:#sell_pointのとき
+                if self.havestock == 1:#株を持っているなら
+                    self.action = -1
+                    order.append(-1)#売る
+                    self.money = self.money + self.stock * price[i]
+                    self.stock = 0
+                    self.havestock = 0
+                    #self.buyprice = 0
+                else:#株を持っていないなら
+                    order.append(0)#何もしない
+                    self.action = 0
+                    
+                    
+            else:#no_operationのとき
+                order.append(0)
+                self.action = 0
+                
+                
+            self.property = self.stock * price[i] + self.money
+            proper.append(self.property)
+            stocks.append(self.stock)
+            end_p = self.property#最終総資産
+            
+        profit_ratio = float((end_p - start_p) / start_p) * 100
+        
+        return profit_ratio, proper, order, stocks, price_data
+        
 class StockMarket():
     
     def __init__(self,u_vol=False,u_ema=False,u_rsi=False,u_macd=False,u_stoch=False,u_wil=False):
