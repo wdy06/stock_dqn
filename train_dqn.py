@@ -21,7 +21,7 @@ def save_agent(agent,folder_name,epoch):
 parser = argparse.ArgumentParser(description='Chainer example: MNIST')
 parser.add_argument('--gpu', '-g', default=-1, type=int,
                     help='GPU ID (negative value indicates CPU)')
-parser.add_argument('--data_folder', '-f', type=str, default='./nikkei225',
+parser.add_argument('--data_folder', '-f', type=str, default='./nikkei100',
                     help='data size of history')
 parser.add_argument('--input_num', '-in', default=60, type=int,
                     help='input node number')
@@ -142,4 +142,5 @@ for epoch in range(1,n_epoch + 1):
     
     if epoch % 1 == 0:
         #Agent.DQN.save_model(folder, epoch)
-        save_agent(Agent,folder,epoch)
+        #save_agent(Agent,folder,epoch)
+        Agent.DQN.save_model(folder,epoch)

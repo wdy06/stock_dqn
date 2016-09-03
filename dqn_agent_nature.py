@@ -9,6 +9,7 @@ import copy
 import pickle
 import numpy as np
 import scipy.misc as spm
+import dnn_6
 
 from chainer import cuda, FunctionSet, Variable, optimizers
 import chainer.functions as F
@@ -37,16 +38,10 @@ class DQN_class:
         #        cuda.init()
 
         print "Model Building"
-        self.model = FunctionSet(
-            l1=F.Linear(self.state_dimention, 200),
-            l2=F.Linear(200, 200),
-            l3=F.Linear(200, 200),
-            l4=F.Linear(200, 200),
-            q_value=F.Linear(200, self.num_of_actions,
-                             initialW=np.zeros((self.num_of_actions, 200),
-                                               dtype=np.float32))
-        ).to_gpu()
-
+        self.model = dnn_6.Q_DNN(self.state_dimention,200,self.num_of_actions)
+        self.model.to_gpu()
+        
+        
         self.model_target = copy.deepcopy(self.model)
 
         print "Initizlizing Optimizer"
@@ -65,10 +60,10 @@ class DQN_class:
         s = Variable(state)
         s_dash = Variable(state_dash)
 
-        Q = self.Q_func(s)  # Get Q-value
+        Q = self.model.Q_func(s)  # Get Q-value
 
         # Generate Target Signals
-        tmp = self.Q_func_target(s_dash)  # Q(s',*)
+        tmp = self.model_target.Q_func(s_dash)  # Q(s',*)
         tmp = list(map(np.max, tmp.data.get()))  # max_a Q(s',a)
         max_Q_dash = np.asanyarray(tmp, dtype=np.float32)
         target = np.asanyarray(Q.data.get(), dtype=np.float32)
@@ -138,27 +133,13 @@ class DQN_class:
             loss, _ = self.forward(s_replay, a_replay, r_replay, s_dash_replay, episode_end_replay)
             loss.backward()
             self.optimizer.update()
-
-    def Q_func(self, state):
-        h1 = F.relu(self.model.l1(state))  # scale inputs in [0.0 1.0]
-        h2 = F.relu(self.model.l2(h1))
-        h3 = F.relu(self.model.l3(h2))
-        h4 = F.relu(self.model.l4(h3))
-        Q = self.model.q_value(h4)
-        return Q
-
-    def Q_func_target(self, state):
-        h1 = F.relu(self.model_target.l1(state))  # scale inputs in [0.0 1.0]
-        h2 = F.relu(self.model_target.l2(h1))
-        h3 = F.relu(self.model_target.l3(h2))
-        h4 = F.relu(self.model.l4(h3))
-        Q = self.model_target.q_value(h4)
-        return Q
-
+    
+        
+    
     def e_greedy(self, state, epsilon):
         
         s = Variable(state)
-        Q = self.Q_func(s)
+        Q = self.model.Q_func(s,train=False)
         Q = Q.data
 
         if np.random.rand() < epsilon:
@@ -189,10 +170,17 @@ class DQN_class:
         self.model.to_gpu()
         self.optimizer.setup(self.model)
 
+    def load_model(self, model):
+        with open(model, 'rb') as m:
+            print "open " + model
+            self.model = pickle.load(m)
+            print 'load model'
+            self.model.to_gpu()
+        
 class dqn_agent():  # RL-glue Process
     #lastAction = Action()
     policyFrozen = False
-    def __init__(self,state_dimention,batchsize,historysize,epsilon_discount_size):
+    def __init__(self,state_dimention,batchsize=0,historysize=0,epsilon_discount_size=0):
         self.state_dimention = state_dimention
         self.batchsize = batchsize
         self.historysize = historysize
@@ -244,8 +232,8 @@ class dqn_agent():  # RL-glue Process
                 eps = 1.0
         else:  # Evaluation
                 print "Policy is Frozen"
+                #eps = 0.1
                 eps = 0.05
-
         # Generate an Action by e-greedy action selection
         action, Q_now = self.DQN.e_greedy(state_, eps)
         self.max_Q_list.append(np.max(Q_now.get()))
