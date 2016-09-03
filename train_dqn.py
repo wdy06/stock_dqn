@@ -9,6 +9,7 @@ import tools
 import numpy as np
 from chainer import cuda
 import pickle
+import random
 
 def save_agent(agent,folder_name,epoch):
 
@@ -78,6 +79,7 @@ else:
 
 
 END_TRADING_DAY = 20081230
+START_TEST_DAY = 20090105
 n_epoch = 1000
 
 start_time = time.clock()
@@ -89,6 +91,7 @@ market = env_stockmarket.StockMarket(u_vol=u_vol,u_ema=u_ema,u_rsi=u_rsi,u_macd=
 ave_Q = []
 ave_reward = []
 ave_profit = []
+test_ave_profit = []
 epsilon_list = []
 #var_Q = []
 #var_reward = []
@@ -113,10 +116,14 @@ for epoch in range(1,n_epoch + 1):
     Agent.init_max_Q_list()
     Agent.init_reward_list()
     profit_list = []
+    test_profit_list = []
     print('epoch', epoch),
     print 'time:%d[s]' % (time.clock() - start_time)
     print 'epoch!!!', epoch
-    
+    #ファイルの順をシャッフル
+    random.shuffle(files)
+    #train_loop
+    Agent.policyFrozen = False
     for f in files:
         print f
         stock_agent = env_stockmarket.Stock_agent(Agent)
@@ -130,15 +137,32 @@ for epoch in range(1,n_epoch + 1):
         profit_ratio = stock_agent.trading(args.input_num,trainprice,traindata)
         profit_list.append(profit_ratio)
         
+    #test loop
+    Agent.policyFrozen = True
+    for f in files:
+        print f
+        stock_agent = env_stockmarket.Stock_agent(Agent)
+        
+        try:
+            testdata,testprice = market.get_testData(f,START_TEST_DAY,args.input_num)
+            
+        except:
+            print 'skip',f
+            continue
+        
+        profit_ratio = stock_agent.trading_test(args.input_num,testprice,testdata)[0]
+        test_profit_list.append(profit_ratio)
+    
     ave_Q.append(Agent.get_average_Q())
     ave_reward.append(Agent.get_average_reward())
     ave_profit.append(sum(profit_list)/len(profit_list))
+    test_ave_profit.append(sum(test_profit_list)/len(test_profit_list))
     epsilon_list.append(Agent.epsilon)
     #var_Q.append(Agent.get_variance_Q())
     #var_reward.append(Agent.get_varance_reward())
     #var_profit.append(np.var(np.array(profit_list)))
     
-    tools.listToCsv(folder+'log.csv', ave_Q, ave_reward, ave_profit,epsilon_list)
+    tools.listToCsv(folder+'log.csv', ave_Q, ave_reward, ave_profit, test_ave_profit, epsilon_list)
     
     if epoch % 1 == 0:
         #Agent.DQN.save_model(folder, epoch)
