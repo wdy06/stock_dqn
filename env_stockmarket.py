@@ -20,7 +20,35 @@ class Stock_agent():
         self.property =0
         self.buyprice = 0
         
-
+    def observe_norm(self,env):
+        '''
+        env[0]: close price
+        env[1]: volume
+        env[2]: ema1
+        env[3]: ema2
+        env[4]: rsi
+        env[5]: slowk
+        env[6]: slowd
+        env[7]: wllliamR
+        '''
+        
+        min_price = np.min(env[0])
+        max_price = np.max(env[0])
+        make_dataset.normalizationArray(env[0],min_price,max_price)
+        
+        minv = np.min(env[1])
+        maxv = np.max(env[1])
+        make_dataset.normalizationArray(env[1],minv,maxv)
+        
+        make_dataset.normalizationArray(env[2],min_price,max_price)
+        make_dataset.normalizationArray(env[3],min_price,max_price)
+        
+        make_dataset.normalizationArray(env[4],0,100)
+        make_dataset.normalizationArray(env[5],0,100)
+        make_dataset.normalizationArray(env[6],0,100)
+        
+        make_dataset.normalizationArray(env[7],-100,0)
+        
     def get_reward(self, last_action, nowprice ,buyprice):
         
         if (last_action == 0) or (last_action == 1):
@@ -61,7 +89,9 @@ class Stock_agent():
         for i in xrange(term - 1,len(price)):
             #print i,i-term
             observation = copy.deepcopy(traindata[:,i-term+1:i+1])
-            #print observation
+            #直近の期間で正規化
+            self.observe_norm(observation)
+            
             prospect_profit = self.get_prospect_profit(self.havestock,price[i],self.buyprice)
             agent_status = np.array([self.havestock,prospect_profit])
             observation = observation.reshape(1,-1)#一次元配列に変形
@@ -227,7 +257,7 @@ class StockMarket():
         rec = copy.copy(_close)
         price_min = min(_close[:cutpoint])
         price_max = max(_close[:cutpoint])
-        make_dataset.normalizationArray(rec,price_min,price_max)
+        #make_dataset.normalizationArray(rec,price_min,price_max)
         all_data.append(rec)
         
         
@@ -235,7 +265,7 @@ class StockMarket():
             vol_list = _volume
             t_min = min(vol_list[:cutpoint])
             t_max = max(vol_list[:cutpoint])
-            make_dataset.normalizationArray(vol_list,t_min,t_max)
+            #make_dataset.normalizationArray(vol_list,t_min,t_max)
             all_data.append(vol_list)
             
         if self.u_ema == True:
@@ -246,8 +276,8 @@ class StockMarket():
             t_min = min(_close[:cutpoint])
             t_max = max(_close[:cutpoint])
             
-            make_dataset.normalizationArray(ema_list1,t_min,t_max)
-            make_dataset.normalizationArray(ema_list2,t_min,t_max)
+            #make_dataset.normalizationArray(ema_list1,t_min,t_max)
+            #make_dataset.normalizationArray(ema_list2,t_min,t_max)
             all_data.append(ema_list1)
             all_data.append(ema_list2)
             
@@ -255,7 +285,7 @@ class StockMarket():
             rsi_list = ta.RSI(np.array(_close, dtype='f8'), timeperiod = 14)
             rsi_list = np.ndarray.tolist(rsi_list)
             
-            make_dataset.normalizationArray(rsi_list,0,100)
+            #make_dataset.normalizationArray(rsi_list,0,100)
             all_data.append(rsi_list)
             
         if self.u_macd == True:
@@ -268,8 +298,8 @@ class StockMarket():
             if (t_min == np.nan) or (t_max == np.nan):
                 print 'np.nan error'
                 raise Exception('np.nan error')
-            make_dataset.normalizationArray(macd_list,t_min,t_max)
-            make_dataset.normalizationArray(signal,t_min,t_max)
+            #make_dataset.normalizationArray(macd_list,t_min,t_max)
+            #make_dataset.normalizationArray(signal,t_min,t_max)
             all_data.append(macd_list)
             all_data.append(signal)
             
@@ -277,15 +307,15 @@ class StockMarket():
             slowk,slowd = ta.STOCH(np.array(_max, dtype='f8'),np.array(_min, dtype='f8'),np.array(_close, dtype='f8'), fastk_period = 5,slowk_period=3,slowd_period=3)
             slowk = np.ndarray.tolist(slowk)
             slowd = np.ndarray.tolist(slowd)
-            make_dataset.normalizationArray(slowk,0,100)
-            make_dataset.normalizationArray(slowd,0,100)
+            #make_dataset.normalizationArray(slowk,0,100)
+            #make_dataset.normalizationArray(slowd,0,100)
             all_data.append(slowk)
             all_data.append(slowd)
             
         if self.u_wil == True:
             will = ta.WILLR(np.array(_max, dtype='f8'),np.array(_min, dtype='f8'),np.array(_close, dtype='f8'), timeperiod = 14)
             will = np.ndarray.tolist(will)
-            make_dataset.normalizationArray(will,-100,0)
+            #make_dataset.normalizationArray(will,-100,0)
             all_data.append(will)
         
         all_data = np.array(all_data)
@@ -321,7 +351,7 @@ class StockMarket():
         rec = copy.copy(_close)
         price_min = min(_close[:cutpoint])
         price_max = max(_close[:cutpoint])
-        make_dataset.normalizationArray(rec,price_min,price_max)
+        #make_dataset.normalizationArray(rec,price_min,price_max)
         all_data.append(rec)
         
         
@@ -329,7 +359,7 @@ class StockMarket():
             vol_list = _volume
             t_min = min(vol_list[:cutpoint])
             t_max = max(vol_list[:cutpoint])
-            make_dataset.normalizationArray(vol_list,t_min,t_max)
+            #make_dataset.normalizationArray(vol_list,t_min,t_max)
             all_data.append(vol_list)
             
         if self.u_ema == True:
@@ -340,8 +370,8 @@ class StockMarket():
             t_min = min(_close[:cutpoint])
             t_max = max(_close[:cutpoint])
             
-            make_dataset.normalizationArray(ema_list1,t_min,t_max)
-            make_dataset.normalizationArray(ema_list2,t_min,t_max)
+            #make_dataset.normalizationArray(ema_list1,t_min,t_max)
+            #make_dataset.normalizationArray(ema_list2,t_min,t_max)
             all_data.append(ema_list1)
             all_data.append(ema_list2)
             
@@ -349,7 +379,7 @@ class StockMarket():
             rsi_list = ta.RSI(np.array(_close, dtype='f8'), timeperiod = 14)
             rsi_list = np.ndarray.tolist(rsi_list)
             
-            make_dataset.normalizationArray(rsi_list,0,100)
+            #make_dataset.normalizationArray(rsi_list,0,100)
             all_data.append(rsi_list)
             
         if self.u_macd == True:
@@ -362,8 +392,8 @@ class StockMarket():
             if (t_min == np.nan) or (t_max == np.nan):
                 print 'np.nan error'
                 raise Exception('np.nan error')
-            make_dataset.normalizationArray(macd_list,t_min,t_max)
-            make_dataset.normalizationArray(signal,t_min,t_max)
+            #make_dataset.normalizationArray(macd_list,t_min,t_max)
+            #make_dataset.normalizationArray(signal,t_min,t_max)
             all_data.append(macd_list)
             all_data.append(signal)
             
@@ -371,15 +401,15 @@ class StockMarket():
             slowk,slowd = ta.STOCH(np.array(_max, dtype='f8'),np.array(_min, dtype='f8'),np.array(_close, dtype='f8'), fastk_period = 5,slowk_period=3,slowd_period=3)
             slowk = np.ndarray.tolist(slowk)
             slowd = np.ndarray.tolist(slowd)
-            make_dataset.normalizationArray(slowk,0,100)
-            make_dataset.normalizationArray(slowd,0,100)
+            #make_dataset.normalizationArray(slowk,0,100)
+            #make_dataset.normalizationArray(slowd,0,100)
             all_data.append(slowk)
             all_data.append(slowd)
             
         if self.u_wil == True:
             will = ta.WILLR(np.array(_max, dtype='f8'),np.array(_min, dtype='f8'),np.array(_close, dtype='f8'), timeperiod = 14)
             will = np.ndarray.tolist(will)
-            make_dataset.normalizationArray(will,-100,0)
+            #make_dataset.normalizationArray(will,-100,0)
             all_data.append(will)
         
         all_data = np.array(all_data)
