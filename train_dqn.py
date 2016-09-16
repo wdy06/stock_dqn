@@ -10,7 +10,8 @@ import numpy as np
 from chainer import cuda
 import pickle
 import random
-
+from tqdm import tqdm
+import matplotlib.pyplot as plt
 def save_agent(agent,folder_name,epoch):
 
     print 'save agent'
@@ -112,7 +113,7 @@ with open(folder + 'settings.txt', 'wb') as o:
     
     
 files = os.listdir(args.data_folder)
-for epoch in range(1,n_epoch + 1):
+for epoch in tqdm(range(1,n_epoch + 1)):
     Agent.init_max_Q_list()
     Agent.init_reward_list()
     profit_list = []
@@ -124,8 +125,8 @@ for epoch in range(1,n_epoch + 1):
     random.shuffle(files)
     #train_loop
     Agent.policyFrozen = False
-    for f in files:
-        print f
+    for f in tqdm(files):
+        #print f
         stock_agent = env_stockmarket.Stock_agent(Agent)
         
         try:
@@ -140,7 +141,7 @@ for epoch in range(1,n_epoch + 1):
     #test loop
     Agent.policyFrozen = True
     for f in files:
-        print f
+        #print f
         stock_agent = env_stockmarket.Stock_agent(Agent)
         
         try:
@@ -163,6 +164,58 @@ for epoch in range(1,n_epoch + 1):
     #var_profit.append(np.var(np.array(profit_list)))
     
     tools.listToCsv(folder+'log.csv', ave_Q, ave_reward, ave_profit, test_ave_profit, epsilon_list)
+    
+    #2軸使用
+    fig, axis1 = plt.subplots()
+    axis2 = axis1.twinx()
+    axis1.set_ylabel('ave_max_Q')
+    axis2.set_ylabel('epsilon')
+    axis1.plot(ave_Q, label = "ave_max_Q")
+    axis1.legend(loc = 'upper left')
+    axis2.plot(epsilon_list, label = 'epsilon', color = 'g')
+    axis2.legend()
+    filename = folder + "log_ave_max_Q.png"
+    plt.savefig(filename)
+    plt.close()
+    
+    #2軸使用
+    fig, axis1 = plt.subplots()
+    axis2 = axis1.twinx()
+    axis1.set_ylabel('ave_reward')
+    axis2.set_ylabel('epsilon')
+    axis1.plot(ave_reward, label = "ave_reward")
+    axis1.legend(loc = 'upper left')
+    axis2.plot(epsilon_list, label = 'epsilon', color = 'g')
+    axis2.legend()
+    filename = folder + "log_ave_reward.png"
+    plt.savefig(filename)
+    plt.close()
+    
+    #2軸使用
+    fig, axis1 = plt.subplots()
+    axis2 = axis1.twinx()
+    axis1.set_ylabel('ave_train_profit')
+    axis2.set_ylabel('epsilon')
+    axis1.plot(ave_profit, label = "ave_train_profit")
+    axis1.legend(loc = 'upper left')
+    axis2.plot(epsilon_list, label = 'epsilon', color = 'g')
+    axis2.legend()
+    filename = folder + "log_ave_train_profit.png"
+    plt.savefig(filename)
+    plt.close()
+    
+    #2軸使用
+    fig, axis1 = plt.subplots()
+    axis2 = axis1.twinx()
+    axis1.set_ylabel('ave_test_profit')
+    axis2.set_ylabel('epsilon')
+    axis1.plot(test_ave_profit, label = "ave_test_profit")
+    axis1.legend(loc = 'upper left')
+    axis2.plot(epsilon_list, label = 'epsilon', color = 'g')
+    axis2.legend()
+    filename = folder + "log_ave_test_profit.png"
+    plt.savefig(filename)
+    plt.close()
     
     if epoch % 1 == 0:
         #Agent.DQN.save_model(folder, epoch)
