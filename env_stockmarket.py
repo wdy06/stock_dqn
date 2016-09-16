@@ -76,7 +76,7 @@ class Stock_agent():
             _sum = 100 * price * i
             
         return 100 * (i - 1)
-        
+    
     def trading(self,term, price, traindata):
         #print term
         #print traindata
@@ -100,10 +100,10 @@ class Stock_agent():
             reward = self.get_reward(self.action, price[i-1], self.buyprice)
             
             if i == (term - 1):
-                print 'agent start!'
+                #print 'agent start!'
                 Q_action = self.Agent.agent_start(observation)
             elif i == (len(price) - 1):
-                print 'agent end!'
+                #print 'agent end!'
                 Q_action = self.Agent.agent_end(reward)
             else:
                 Q_action = self.Agent.agent_step(reward, observation)
@@ -164,6 +164,9 @@ class Stock_agent():
         for i in xrange(term - 1,len(price)):
 
             observation = copy.deepcopy(traindata[:,i-term+1:i+1])
+            
+            self.observe_norm(observation)
+            
             prospect_profit = self.get_prospect_profit(self.havestock,price[i],self.buyprice)
             agent_status = np.array([self.havestock,prospect_profit])
             observation = observation.reshape(1,-1)#一次元配列に変形
@@ -171,10 +174,10 @@ class Stock_agent():
             reward = self.get_reward(self.action, price[i-1], self.buyprice)
             
             if i == (term - 1):
-                print 'agent start!'
+                #print 'agent start!'
                 Q_action = self.Agent.agent_start(observation)
             elif i == (len(price) - 1):
-                print 'agent end!'
+                #print 'agent end!'
                 Q_action = self.Agent.agent_end(reward)
             else:
                 Q_action = self.Agent.agent_step(reward, observation)
