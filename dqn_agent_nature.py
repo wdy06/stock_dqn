@@ -144,13 +144,11 @@ class DQN_class:
 
         if np.random.rand() < epsilon:
             index_action = np.random.randint(0, self.num_of_actions)
-            print "RANDOM"
+            #print "RANDOM"
         else:
             index_action = np.argmax(Q.get())
-            print "GREEDY"
-        #print 'index action',index_action
-        #print self.index_to_action(index_action)
-        #raw_input()
+            #print "GREEDY"
+        
         return self.index_to_action(index_action), Q
 
     def target_model_update(self):
@@ -214,7 +212,7 @@ class dqn_agent():  # RL-glue Process
         self.max_Q_list.append(np.max(Q_now.get()))
         
         return action
-
+        
     def agent_step(self, reward, observation):
 
         self.state = observation
@@ -228,10 +226,10 @@ class dqn_agent():  # RL-glue Process
                     self.epsilon = 0.1
                 eps = self.epsilon
             else:  # Initial Exploation Phase
-                print "Initial Exploration : %d/%d steps" % (self.time, self.DQN.initial_exploration)
+                #print "Initial Exploration : %d/%d steps" % (self.time, self.DQN.initial_exploration)
                 eps = 1.0
         else:  # Evaluation
-                print "Policy is Frozen"
+                #print "Policy is Frozen"
                 #eps = 0.1
                 eps = 0.05
         # Generate an Action by e-greedy action selection
@@ -246,11 +244,11 @@ class dqn_agent():  # RL-glue Process
 
         # Target model update
         if self.DQN.initial_exploration < self.time and np.mod(self.time, self.DQN.target_model_update_freq) == 0:
-            print "########### MODEL UPDATED ######################"
+            #print "########### MODEL UPDATED ######################"
             self.DQN.target_model_update()
             
         # Simple text based visualization
-        print ' Time Step %d /   ACTION  %d  /   REWARD %.4f   / EPSILON  %.6f  /   Q_max  %3f' % (self.time, action, reward, eps, np.max(Q_now.get()))
+        #print ' Time Step %d /   ACTION  %d  /   REWARD %.4f   / EPSILON  %.6f  /   Q_max  %3f' % (self.time, action, reward, eps, np.max(Q_now.get()))
 
         # Updates for next step
         self.last_observation = observation.copy()
@@ -272,12 +270,12 @@ class dqn_agent():  # RL-glue Process
 
         # Target model update
         if self.DQN.initial_exploration < self.time and np.mod(self.time, self.DQN.target_model_update_freq) == 0:
-            print "########### MODEL UPDATED ######################"
+            #print "########### MODEL UPDATED ######################"
             self.DQN.target_model_update()
             
             
         # Simple text based visualization
-        print '  REWARD %.1f   / EPSILON  %.5f' % (np.sign(reward), self.epsilon)
+        #print '  REWARD %.1f   / EPSILON  %.5f' % (np.sign(reward), self.epsilon)
 
         # Time count
         if self.policyFrozen is False:
