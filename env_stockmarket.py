@@ -6,6 +6,9 @@ import copy
 import csv
 import numpy as np
 import talib as ta
+import pyximport
+pyximport.install()
+import cyfuncs
 
 class Stock_agent():
     
@@ -34,20 +37,20 @@ class Stock_agent():
         
         min_price = np.min(env[0])
         max_price = np.max(env[0])
-        make_dataset.normalizationArray(env[0],min_price,max_price)
+        cyfuncs.normalizationArray(env[0],min_price,max_price)
         
         minv = np.min(env[1])
         maxv = np.max(env[1])
-        make_dataset.normalizationArray(env[1],minv,maxv)
+        cyfuncs.normalizationArray(env[1],minv,maxv)
         
-        make_dataset.normalizationArray(env[2],min_price,max_price)
-        make_dataset.normalizationArray(env[3],min_price,max_price)
+        cyfuncs.normalizationArray(env[2],min_price,max_price)
+        cyfuncs.normalizationArray(env[3],min_price,max_price)
         
-        make_dataset.normalizationArray(env[4],0,100)
-        make_dataset.normalizationArray(env[5],0,100)
-        make_dataset.normalizationArray(env[6],0,100)
+        cyfuncs.normalizationArray(env[4],0,100)
+        cyfuncs.normalizationArray(env[5],0,100)
+        cyfuncs.normalizationArray(env[6],0,100)
         
-        make_dataset.normalizationArray(env[7],-100,0)
+        cyfuncs.normalizationArray(env[7],-100,0)
         
     def get_reward(self, last_action, nowprice ,buyprice):
         
