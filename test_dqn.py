@@ -11,6 +11,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 from chainer import cuda
 
+def trading_files(files):
+    pass
+    
+
 parser = argparse.ArgumentParser(description='Chainer example: MNIST')
 parser.add_argument('--gpu', '-g', default=-1, type=int,
                     help='GPU ID (negative value indicates CPU)')
@@ -73,7 +77,7 @@ Agent.agent_init()
 Agent.DQN.load_model(args.model)
 Agent.policyFrozen = True
     
-market = env_stockmarket.StockMarket(u_vol=u_vol,u_ema=u_ema,u_rsi=u_rsi,u_macd=u_macd,u_stoch=u_stoch,u_wil=u_wil)
+market = env_stockmarket.StockMarket(END_TRADING_DAY,START_TEST_DAY,u_vol=u_vol,u_ema=u_ema,u_rsi=u_rsi,u_macd=u_macd,u_stoch=u_stoch,u_wil=u_wil)
 
 files = os.listdir("./nikkei100")
 
@@ -87,7 +91,7 @@ for f in files:
     stock_agent = env_stockmarket.Stock_agent(Agent)
     
     try:
-        testdata,testprice = market.get_testData(f,START_TEST_DAY,args.input_num)
+        testdata,testprice = market.get_testData(f,args.input_num)
         #testdata, testprice = market.get_trainData(f,END_TRAIN_DAY,args.input_num)
     except:
         print 'skip',f

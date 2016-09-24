@@ -9,7 +9,10 @@ import talib as ta
 import pyximport
 pyximport.install()
 import cyfuncs
+import tools
 
+
+    
 class Stock_agent():
     
     def __init__(self,agent):
@@ -152,9 +155,9 @@ class Stock_agent():
         profit_ratio = float((end_p - start_p) / start_p) * 100
         
         return profit_ratio
-            
+
     def trading_test(self,term, price, traindata):
-        #総資産推移や売買履歴を出力
+        #trading()の総資産推移や売買履歴を出力版
         start_p = self.money
         end_p = 0
         if price == -1:
@@ -230,7 +233,7 @@ class Stock_agent():
         
 class StockMarket():
     
-    def __init__(self,u_vol=False,u_ema=False,u_rsi=False,u_macd=False,u_stoch=False,u_wil=False):
+    def __init__(self,END_TRADING_DAY,START_TEST_DAY,u_vol=False,u_ema=False,u_rsi=False,u_macd=False,u_stoch=False,u_wil=False):
     
         
         
@@ -241,7 +244,10 @@ class StockMarket():
         self.u_stoch = u_stoch
         self.u_wil = u_wil
         
-    def get_trainData(self,filename,end_train_day,input_num,stride=1):
+        self.END_TRADING_DAY = END_TRADING_DAY
+        self.START_TEST_DAY = START_TEST_DAY
+        
+    def get_trainData(self,filename,input_num,stride=1):
         
         all_data = []
         traindata = []
@@ -252,7 +258,7 @@ class StockMarket():
 
         #start_test_dayでデータセットを分割
         try:
-            iday = _time.index(end_train_day)
+            iday = _time.index(self.END_TRADING_DAY)
         except:
             print "can't find start_test_day"
             #start_test_dayが見つからなければ次のファイルへ
@@ -335,7 +341,7 @@ class StockMarket():
         
         return traindata,trainprice
     
-    def get_testData(self,filename,start_test_day,input_num,stride=1):
+    def get_testData(self,filename,input_num,stride=1):
         
         all_data = []
         testdata = []
@@ -346,7 +352,7 @@ class StockMarket():
 
         #start_test_dayでデータセットを分割
         try:
-            iday = _time.index(start_test_day)
+            iday = _time.index(self.START_TEST_DAY)
         except:
             print "can't find start_test_day"
             #start_test_dayが見つからなければ次のファイルへ

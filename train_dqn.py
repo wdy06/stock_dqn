@@ -27,7 +27,7 @@ parser.add_argument('--data_folder', '-f', type=str, default='./nikkei100',
                     help='data size of history')
 parser.add_argument('--input_num', '-in', default=60, type=int,
                     help='input node number')
-parser.add_argument('--channel', '-c', default=1, type=int,
+parser.add_argument('--channel', '-c', default=8, type=int,
                     help='data channel')
 parser.add_argument('--experiment_name', '-n', default='experiment',type=str,help='experiment name')
 parser.add_argument('--batchsize', '-B', type=int, default=1000,
@@ -88,7 +88,7 @@ start_time = time.clock()
 Agent = dqn_agent_nature.dqn_agent(state_dimention=args.input_num * args.channel + 2,batchsize=args.batchsize,historysize=args.historysize,epsilon_discount_size=args.epsilon_discount_size)
 Agent.agent_init()
 
-market = env_stockmarket.StockMarket(u_vol=u_vol,u_ema=u_ema,u_rsi=u_rsi,u_macd=u_macd,u_stoch=u_stoch,u_wil=u_wil)
+market = env_stockmarket.StockMarket(END_TRADING_DAY,START_TEST_DAY,u_vol=u_vol,u_ema=u_ema,u_rsi=u_rsi,u_macd=u_macd,u_stoch=u_stoch,u_wil=u_wil)
 ave_Q = []
 ave_reward = []
 ave_profit = []
@@ -130,7 +130,7 @@ for epoch in tqdm(range(1,n_epoch + 1)):
         stock_agent = env_stockmarket.Stock_agent(Agent)
         
         try:
-            traindata,trainprice = market.get_trainData(f,END_TRADING_DAY,args.input_num)
+            traindata,trainprice = market.get_trainData(f,args.input_num)
         except:
             #print 'skip',f
             continue
@@ -145,10 +145,10 @@ for epoch in tqdm(range(1,n_epoch + 1)):
         stock_agent = env_stockmarket.Stock_agent(Agent)
         
         try:
-            testdata,testprice = market.get_testData(f,START_TEST_DAY,args.input_num)
+            testdata,testprice = market.get_testData(f,args.input_num)
             
         except:
-            print 'skip',f
+            #print 'skip',f
             continue
         
         profit_ratio = stock_agent.trading_test(args.input_num,testprice,testdata)[0]
