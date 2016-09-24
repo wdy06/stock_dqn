@@ -132,7 +132,7 @@ for epoch in tqdm(range(1,n_epoch + 1)):
         try:
             traindata,trainprice = market.get_trainData(f,END_TRADING_DAY,args.input_num)
         except:
-            print 'skip',f
+            #print 'skip',f
             continue
             
         profit_ratio = stock_agent.trading(args.input_num,trainprice,traindata)
@@ -175,6 +175,7 @@ for epoch in tqdm(range(1,n_epoch + 1)):
     axis2.plot(epsilon_list, label = 'epsilon', color = 'g')
     axis2.legend()
     filename = folder + "log_ave_max_Q.png"
+    plt.grid(which='major')
     plt.savefig(filename)
     plt.close()
     
@@ -188,6 +189,7 @@ for epoch in tqdm(range(1,n_epoch + 1)):
     axis2.plot(epsilon_list, label = 'epsilon', color = 'g')
     axis2.legend()
     filename = folder + "log_ave_reward.png"
+    plt.grid(which='major')
     plt.savefig(filename)
     plt.close()
     
@@ -201,6 +203,7 @@ for epoch in tqdm(range(1,n_epoch + 1)):
     axis2.plot(epsilon_list, label = 'epsilon', color = 'g')
     axis2.legend()
     filename = folder + "log_ave_train_profit.png"
+    plt.grid(which='major')
     plt.savefig(filename)
     plt.close()
     
