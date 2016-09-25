@@ -55,6 +55,20 @@ def order2buysell(order,price):
             
     return buy_point, sell_point
     
+def divide_list(xs, n):
+    q = len(xs) // n
+    m = len(xs) % n
+
+    return reduce(
+        lambda acc, i:
+            (lambda fr = sum([ len(x) for x in acc ]):
+                acc + [ xs[fr:(fr + q + (1 if i < m else 0))] ]
+            )()
+        ,
+        range(n),
+        []
+    )
+    
 if __name__ == "__main__":
     
     get_nikkei255_file()
