@@ -178,6 +178,8 @@ class DQN_class:
 class dqn_agent():  # RL-glue Process
     #lastAction = Action()
     policyFrozen = False
+    learning_freq = 2#何日ごとに学習するか
+    
     def __init__(self,state_dimention,batchsize=0,historysize=0,epsilon_discount_size=0):
         self.state_dimention = state_dimention
         self.batchsize = batchsize
@@ -189,6 +191,7 @@ class dqn_agent():  # RL-glue Process
         #self.lastAction = Action()
 
         self.time = 0
+        self.learned_time = 0
         self.epsilon = 1.0  # Initial exploratoin rate
         self.max_Q_list = []
         self.reward_list = []
@@ -239,11 +242,13 @@ class dqn_agent():  # RL-glue Process
 
         # Learning Phase
         if self.policyFrozen is False:  # Learning ON/OFF
-            self.DQN.stockExperience(self.time, self.last_state, self.lastAction, reward, self.state, False)
-            self.DQN.experienceReplay(self.time)
+            if (self.time % self.learning_freq) == 0:
+                self.DQN.stockExperience(self.learned_time, self.last_state, self.lastAction, reward, self.state, False)
+                self.DQN.experienceReplay(self.learned_time)
+                self.learned_time += 1
 
         # Target model update
-        if self.DQN.initial_exploration < self.time and np.mod(self.time, self.DQN.target_model_update_freq) == 0:
+        if self.DQN.initial_exploration < self.learned_time and np.mod(self.learned_time, self.DQN.target_model_update_freq) == 0:
             #print "########### MODEL UPDATED ######################"
             self.DQN.target_model_update()
             
@@ -265,11 +270,13 @@ class dqn_agent():  # RL-glue Process
         self.reward_list.append(reward)
         # Learning Phase
         if self.policyFrozen is False:  # Learning ON/OFF
-            self.DQN.stockExperience(self.time, self.last_state, self.lastAction, reward, self.last_state, True)
-            self.DQN.experienceReplay(self.time)
+            if (self.time % self.learning_freq) == 0:
+                self.DQN.stockExperience(self.learned_time, self.last_state, self.lastAction, reward, self.last_state, True)
+                self.DQN.experienceReplay(self.learned_time)
+                self.learned_time += 1
 
         # Target model update
-        if self.DQN.initial_exploration < self.time and np.mod(self.time, self.DQN.target_model_update_freq) == 0:
+        if self.DQN.initial_exploration < self.learned_time and np.mod(self.learned_time, self.DQN.target_model_update_freq) == 0:
             #print "########### MODEL UPDATED ######################"
             self.DQN.target_model_update()
             
