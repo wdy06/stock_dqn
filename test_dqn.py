@@ -77,7 +77,7 @@ Agent.agent_init()
 Agent.DQN.load_model(args.model)
 Agent.policyFrozen = True
     
-market = env_stockmarket.StockMarket(END_TRADING_DAY,START_TEST_DAY,u_vol=u_vol,u_ema=u_ema,u_rsi=u_rsi,u_macd=u_macd,u_stoch=u_stoch,u_wil=u_wil)
+market = env_stockmarket.StockMarket(END_TRAIN_DAY,START_TEST_DAY,u_vol=u_vol,u_ema=u_ema,u_rsi=u_rsi,u_macd=u_macd,u_stoch=u_stoch,u_wil=u_wil)
 
 files = os.listdir("./nikkei100")
 
