@@ -183,7 +183,7 @@ class dqn_agent():  # RL-glue Process
     policyFrozen = False
     learning_freq = 2#何日ごとに学習するか
     
-    def __init__(self,state_dimention,batchsize=0,historysize=0,epsilon_discount_size=0):
+    def __init__(self,state_dimention=0,batchsize=0,historysize=0,epsilon_discount_size=0):
         self.state_dimention = state_dimention
         self.batchsize = batchsize
         self.historysize = historysize

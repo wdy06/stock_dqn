@@ -72,7 +72,7 @@ END_TRAIN_DAY = 20081230
 START_TEST_DAY = 20100104
 
 #モデルの読み込み
-Agent = dqn_agent_nature.dqn_agent(state_dimention=args.input_num * args.channel + 2,)
+Agent = dqn_agent_nature.dqn_agent()
 Agent.agent_init()
 Agent.DQN.load_model(args.model)
 Agent.policyFrozen = True
