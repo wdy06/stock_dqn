@@ -138,6 +138,15 @@ for epoch in tqdm(range(1,n_epoch + 1)):
         profit_ratio = stock_agent.trading(args.input_num,trainprice,traindata)
         profit_list.append(profit_ratio)
         
+    ave_profit.append(sum(profit_list)/len(profit_list))
+    ave_Q.append(Agent.get_average_Q())
+    ave_reward.append(Agent.get_average_reward())
+    epsilon_list.append(Agent.epsilon)
+    #var_Q.append(Agent.get_variance_Q())
+    #var_reward.append(Agent.get_varance_reward())
+    #var_profit.append(np.var(np.array(profit_list)))
+    
+    
     #test loop
     Agent.policyFrozen = True
     for f in files:
@@ -153,15 +162,8 @@ for epoch in tqdm(range(1,n_epoch + 1)):
         
         profit_ratio = stock_agent.trading_test(args.input_num,testprice,testdata)[0]
         test_profit_list.append(profit_ratio)
-    
-    ave_Q.append(Agent.get_average_Q())
-    ave_reward.append(Agent.get_average_reward())
-    ave_profit.append(sum(profit_list)/len(profit_list))
+
     test_ave_profit.append(sum(test_profit_list)/len(test_profit_list))
-    epsilon_list.append(Agent.epsilon)
-    #var_Q.append(Agent.get_variance_Q())
-    #var_reward.append(Agent.get_varance_reward())
-    #var_profit.append(np.var(np.array(profit_list)))
     
     tools.listToCsv(folder+'log.csv', ave_Q, ave_reward, ave_profit, test_ave_profit, epsilon_list)
     
