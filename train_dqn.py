@@ -30,7 +30,7 @@ parser.add_argument('--input_num', '-in', default=60, type=int,
 parser.add_argument('--channel', '-c', default=8, type=int,
                     help='data channel')
 parser.add_argument('--experiment_name', '-n', default='experiment',type=str,help='experiment name')
-parser.add_argument('--batchsize', '-B', type=int, default=1000,
+parser.add_argument('--batchsize', '-B', type=int, default=100,
                     help='replay size')
 parser.add_argument('--historysize', '-D', type=int, default=10**5,
                     help='data size of history')
