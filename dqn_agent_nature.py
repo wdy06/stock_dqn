@@ -174,6 +174,9 @@ class DQN_class:
             self.model = pickle.load(m)
             print 'load model'
             self.model.to_gpu()
+            
+    def get_model_copy(self):
+        return copy.deepcopy(self.model)
         
 class dqn_agent():  # RL-glue Process
     #lastAction = Action()
@@ -305,6 +308,9 @@ class dqn_agent():  # RL-glue Process
         
     def get_varance_reward(self):
         return np.var(np.array(self.reward_list))
+        
+    def get_learned_time(self):
+        return self.learned_time
         
     def agent_cleanup(self):
         pass
