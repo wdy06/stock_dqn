@@ -60,10 +60,10 @@ class DQN_class:
         s = Variable(state)
         s_dash = Variable(state_dash)
 
-        Q = self.model.Q_func(s)  # Get Q-value
+        Q = self.model.Q_func(s,train=True)  # Get Q-value
 
         # Generate Target Signals
-        tmp = self.model_target.Q_func(s_dash)  # Q(s',*)
+        tmp = self.model_target.Q_func(s_dash,train=True)  # Q(s',*)
         tmp = list(map(np.max, tmp.data.get()))  # max_a Q(s',a)
         max_Q_dash = np.asanyarray(tmp, dtype=np.float32)
         target = np.asanyarray(Q.data.get(), dtype=np.float32)
