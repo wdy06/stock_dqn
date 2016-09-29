@@ -12,6 +12,8 @@ import pickle
 import random
 from tqdm import tqdm
 import matplotlib.pyplot as plt
+import evaluation_performance
+
 def save_agent(agent,folder_name,epoch):
 
     print 'save agent'
@@ -116,8 +118,7 @@ files = os.listdir(args.data_folder)
 for epoch in tqdm(range(1,n_epoch + 1)):
     Agent.init_max_Q_list()
     Agent.init_reward_list()
-    profit_list = []
-    test_profit_list = []
+
     print('epoch', epoch),
     print 'time:%d[s]' % (time.clock() - start_time)
     print 'epoch!!!', epoch
@@ -136,34 +137,13 @@ for epoch in tqdm(range(1,n_epoch + 1)):
             continue
             
         profit_ratio = stock_agent.trading(args.input_num,trainprice,traindata)
-        profit_list.append(profit_ratio)
-        
-    ave_profit.append(sum(profit_list)/len(profit_list))
-    ave_Q.append(Agent.get_average_Q())
-    ave_reward.append(Agent.get_average_reward())
-    epsilon_list.append(Agent.epsilon)
-    #var_Q.append(Agent.get_variance_Q())
-    #var_reward.append(Agent.get_varance_reward())
-    #var_profit.append(np.var(np.array(profit_list)))
-    
-    
-    #test loop
-    Agent.policyFrozen = True
-    for f in files:
-        #print f
-        stock_agent = env_stockmarket.Stock_agent(Agent)
-        
-        try:
-            testdata,testprice = market.get_testData(f,args.input_num)
-            
-        except:
-            #print 'skip',f
-            continue
-        
-        profit_ratio = stock_agent.trading_test(args.input_num,testprice,testdata)[0]
-        test_profit_list.append(profit_ratio)
 
-    test_ave_profit.append(sum(test_profit_list)/len(test_profit_list))
+    
+    #model evaluation
+    eval_model = Agent.DQN.get_model_copy()
+    ave_profit,test_ave_profit,ave_Q,ave_reward =evaluation_performance.eval_performance(market,eval_model,args.data_folder,args.input_num)
+    epsilon_list.append(Agent.epsilon)
+    
     
     tools.listToCsv(folder+'log.csv', ave_Q, ave_reward, ave_profit, test_ave_profit, epsilon_list)
     
