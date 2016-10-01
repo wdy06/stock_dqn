@@ -14,13 +14,7 @@ from tqdm import tqdm
 import matplotlib.pyplot as plt
 import evaluation_performance
 
-def save_agent(agent,folder_name,epoch):
 
-    print 'save agent'
-    with open(folder_name+'Agent'+str(epoch),'wb') as o:
-        pickle.dump(agent,o)
-        
-    
 
 parser = argparse.ArgumentParser(description='Chainer example: MNIST')
 parser.add_argument('--gpu', '-g', default=-1, type=int,
@@ -119,21 +113,18 @@ for epoch in tqdm(range(1,n_epoch + 1)):
     Agent.init_max_Q_list()
     Agent.init_reward_list()
 
-    #print('epoch', epoch),
-    #print 'time:%d[s]' % (time.clock() - start_time)
-    #print 'epoch!!!', epoch
+
     #ファイルの順をシャッフル
     random.shuffle(files)
     #train_loop
     Agent.policyFrozen = False
     for f in tqdm(files):
-        #print f
+
         stock_agent = env_stockmarket.Stock_agent(Agent)
         
         try:
             traindata,trainprice = market.get_trainData(f,args.input_num)
         except:
-            #print 'skip',f
             continue
             
         profit_ratio = stock_agent.trading(args.input_num,trainprice,traindata)
@@ -208,6 +199,5 @@ for epoch in tqdm(range(1,n_epoch + 1)):
     plt.close()
     
     if epoch % 1 == 0:
-        #Agent.DQN.save_model(folder, epoch)
-        #save_agent(Agent,folder,epoch)
+        
         Agent.DQN.save_model(folder,epoch)
