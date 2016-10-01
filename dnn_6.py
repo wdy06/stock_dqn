@@ -4,9 +4,10 @@
 
 import chainer
 import chainer.functions as F
+import chainer.links as L
 import numpy as np
 
-class Q_DNN(chainer.FunctionSet):
+class Q_DNN(chainer.Chain):
     
     modelname = 'dnn6'
     layer_num = 6
@@ -19,13 +20,13 @@ class Q_DNN(chainer.FunctionSet):
         self.num_of_actions = num_of_actions
         
         super(Q_DNN, self).__init__(
-            fc1=F.Linear(self.input_num, self.hidden_num),
-            fc2=F.Linear(self.hidden_num, self.hidden_num),
-            fc3=F.Linear(self.hidden_num, self.hidden_num),
-            fc4=F.Linear(self.hidden_num, self.hidden_num),
-            fc5=F.Linear(self.hidden_num, self.hidden_num),
-            q_value=F.Linear(200, self.num_of_actions,
-                             initialW=np.zeros((self.num_of_actions, 200),
+            fc1=L.Linear(self.input_num, self.hidden_num),
+            fc2=L.Linear(self.hidden_num, self.hidden_num),
+            fc3=L.Linear(self.hidden_num, self.hidden_num),
+            fc4=L.Linear(self.hidden_num, self.hidden_num),
+            fc5=L.Linear(self.hidden_num, self.hidden_num),
+            q_value=L.Linear(self.hidden_num, self.num_of_actions,
+                             initialW=np.zeros((self.num_of_actions, self.hidden_num),
                                                dtype=np.float32))
         )
         
