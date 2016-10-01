@@ -129,7 +129,8 @@ class DQN_class:
             s_dash_replay = cuda.to_gpu(s_dash_replay)
 
             # Gradient-based update
-            self.optimizer.zero_grads()
+            self.model.cleargrads()
+            #self.model_target.cleargrads()
             loss, _ = self.forward(s_replay, a_replay, r_replay, s_dash_replay, episode_end_replay)
             loss.backward()
             self.optimizer.update()
@@ -177,6 +178,9 @@ class DQN_class:
             
     def get_model_copy(self):
         return copy.deepcopy(self.model)
+        
+    def model_to_gpu(self):
+        self.model.to_gpu()
         
 class dqn_agent():  # RL-glue Process
     #lastAction = Action()
