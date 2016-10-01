@@ -119,9 +119,9 @@ for epoch in tqdm(range(1,n_epoch + 1)):
     Agent.init_max_Q_list()
     Agent.init_reward_list()
 
-    print('epoch', epoch),
-    print 'time:%d[s]' % (time.clock() - start_time)
-    print 'epoch!!!', epoch
+    #print('epoch', epoch),
+    #print 'time:%d[s]' % (time.clock() - start_time)
+    #print 'epoch!!!', epoch
     #ファイルの順をシャッフル
     random.shuffle(files)
     #train_loop
@@ -138,10 +138,15 @@ for epoch in tqdm(range(1,n_epoch + 1)):
             
         profit_ratio = stock_agent.trading(args.input_num,trainprice,traindata)
 
-    
+    print 'evaluating...'
     #model evaluation
     eval_model = Agent.DQN.get_model_copy()
-    ave_profit,test_ave_profit,ave_Q,ave_reward =evaluation_performance.eval_performance(market,eval_model,args.data_folder,args.input_num)
+    _ave_p,_test_ave_p,_ave_Q,_ave_reward =evaluation_performance.eval_performance(market,eval_model,args.data_folder,args.input_num)
+    
+    ave_profit.append(_ave_p)
+    test_ave_profit.append(_test_ave_p)
+    ave_Q.append(_ave_Q)
+    ave_reward.append(_ave_reward)
     epsilon_list.append(Agent.epsilon)
     
     
