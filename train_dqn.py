@@ -63,6 +63,7 @@ elif args.u_wil == 1: u_wil = True
 
 if args.gpu >= 0:
     cuda.check_cuda_available()
+    cuda.get_device(args.gpu).use()
     print "use gpu"
 
 folder = './train_result/' + args.experiment_name + '/'
@@ -85,14 +86,10 @@ Agent = dqn_agent_nature.dqn_agent(state_dimention=args.input_num * args.channel
 Agent.agent_init()
 
 market = env_stockmarket.StockMarket(END_TRAIN_DAY,START_TEST_DAY,u_vol=u_vol,u_ema=u_ema,u_rsi=u_rsi,u_macd=u_macd,u_stoch=u_stoch,u_wil=u_wil)
-ave_Q = []
-ave_reward = []
-ave_profit = []
-test_ave_profit = []
-epsilon_list = []
-#var_Q = []
-#var_reward = []
-#var_profit = []
+
+evaluater = evaluation_performance.Evaluation(market,args.data_folder,folder,args.input_num)
+
+
 
 print 'epoch:', n_epoch
 
@@ -129,75 +126,12 @@ for epoch in tqdm(range(1,n_epoch + 1)):
             
         profit_ratio = stock_agent.trading(args.input_num,trainprice,traindata)
 
-    print 'evaluating...'
     #model evaluation
     eval_model = Agent.DQN.get_model_copy()
-    _ave_p,_test_ave_p,_ave_Q,_ave_reward =evaluation_performance.eval_performance(market,eval_model,args.data_folder,args.input_num)
-    
-    ave_profit.append(_ave_p)
-    test_ave_profit.append(_test_ave_p)
-    ave_Q.append(_ave_Q)
-    ave_reward.append(_ave_reward)
-    epsilon_list.append(Agent.epsilon)
-    
-    
-    tools.listToCsv(folder+'log.csv', ave_Q, ave_reward, ave_profit, test_ave_profit, epsilon_list)
-    
-    #2軸使用
-    fig, axis1 = plt.subplots()
-    axis2 = axis1.twinx()
-    axis1.set_ylabel('ave_max_Q')
-    axis2.set_ylabel('epsilon')
-    axis1.plot(ave_Q, label = "ave_max_Q")
-    axis1.legend(loc = 'upper left')
-    axis2.plot(epsilon_list, label = 'epsilon', color = 'g')
-    axis2.legend()
-    filename = folder + "log_ave_max_Q.png"
-    plt.grid(which='major')
-    plt.savefig(filename)
-    plt.close()
-    
-    #2軸使用
-    fig, axis1 = plt.subplots()
-    axis2 = axis1.twinx()
-    axis1.set_ylabel('ave_reward')
-    axis2.set_ylabel('epsilon')
-    axis1.plot(ave_reward, label = "ave_reward")
-    axis1.legend(loc = 'upper left')
-    axis2.plot(epsilon_list, label = 'epsilon', color = 'g')
-    axis2.legend()
-    filename = folder + "log_ave_reward.png"
-    plt.grid(which='major')
-    plt.savefig(filename)
-    plt.close()
-    
-    #2軸使用
-    fig, axis1 = plt.subplots()
-    axis2 = axis1.twinx()
-    axis1.set_ylabel('ave_train_profit')
-    axis2.set_ylabel('epsilon')
-    axis1.plot(ave_profit, label = "ave_train_profit")
-    axis1.legend(loc = 'upper left')
-    axis2.plot(epsilon_list, label = 'epsilon', color = 'g')
-    axis2.legend()
-    filename = folder + "log_ave_train_profit.png"
-    plt.grid(which='major')
-    plt.savefig(filename)
-    plt.close()
-    
-    #2軸使用
-    fig, axis1 = plt.subplots()
-    axis2 = axis1.twinx()
-    axis1.set_ylabel('ave_test_profit')
-    axis2.set_ylabel('epsilon')
-    axis1.plot(test_ave_profit, label = "ave_test_profit")
-    axis1.legend(loc = 'upper left')
-    axis2.plot(epsilon_list, label = 'epsilon', color = 'g')
-    axis2.legend()
-    filename = folder + "log_ave_test_profit.png"
-    plt.savefig(filename)
-    plt.close()
-    
+    evaluater.eval_performance(eval_model)
+    evaluater.get_epsilon(Agent.epsilon)
+    evaluater.save_eval_result()
+
     if epoch % 1 == 0:
         
         Agent.DQN.save_model(folder,epoch)
