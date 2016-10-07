@@ -130,7 +130,7 @@ class DQN_class:
 
             # Gradient-based update
             self.model.cleargrads()
-            #self.model_target.cleargrads()
+            self.model_target.cleargrads()#これをやる必要あるかは不明
             loss, _ = self.forward(s_replay, a_replay, r_replay, s_dash_replay, episode_end_replay)
             loss.backward()
             self.optimizer.update()
