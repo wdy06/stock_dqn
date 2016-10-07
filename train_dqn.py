@@ -82,12 +82,12 @@ n_epoch = 1000
 
 start_time = time.clock()
 
-Agent = dqn_agent_nature.dqn_agent(state_dimention=args.input_num * args.channel + 2,batchsize=args.batchsize,historysize=args.historysize,epsilon_discount_size=args.epsilon_discount_size)
+Agent = dqn_agent_nature.dqn_agent(gpu_id=args.gpu,state_dimention=args.input_num * args.channel + 2,batchsize=args.batchsize,historysize=args.historysize,epsilon_discount_size=args.epsilon_discount_size)
 Agent.agent_init()
 
 market = env_stockmarket.StockMarket(END_TRAIN_DAY,START_TEST_DAY,u_vol=u_vol,u_ema=u_ema,u_rsi=u_rsi,u_macd=u_macd,u_stoch=u_stoch,u_wil=u_wil)
 
-evaluater = evaluation_performance.Evaluation(market,args.data_folder,folder,args.input_num)
+evaluater = evaluation_performance.Evaluation(args.gpu,market,args.data_folder,folder,args.input_num)
 
 
 

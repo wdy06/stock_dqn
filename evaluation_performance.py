@@ -11,7 +11,8 @@ import numpy as np
 from chainer import cuda
 class Evaluation():
 
-    def __init__(self,market, target_folder,result_folder, input_num):
+    def __init__(self,gpu_id,market, target_folder,result_folder, input_num):
+        self.gpu_id = gpu_id
         self.market = market
         self.target_folder = target_folder
         self.input_num = input_num
@@ -27,7 +28,7 @@ class Evaluation():
     def eval_performance(self,model):
 
         print 'start evaluating...'
-        Agent = dqn_agent_nature.dqn_agent(state_dimention=1)
+        Agent = dqn_agent_nature.dqn_agent(gpu_id = self.gpu_id,state_dimention=1)
         Agent.agent_init()
         Agent.DQN.model = model
         Agent.DQN.model_to_gpu()

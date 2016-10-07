@@ -25,7 +25,8 @@ class DQN_class:
     target_model_update_freq = 10**4  # Target update frequancy. original: 10^4
     #data_size = 10**5  # Data size of history. original: 10^6
     
-    def __init__(self, state_dimention,batchsize,historysize, enable_controller=[1, -1, 0]):
+    def __init__(self, gpu_id, state_dimention,batchsize,historysize, enable_controller=[1, -1, 0]):
+        self.gpu_id = gpu_id
         self.num_of_actions = len(enable_controller)
         self.enable_controller = enable_controller  # Default setting : "Pong"
         self.replay_size = batchsize
@@ -39,7 +40,7 @@ class DQN_class:
 
         print "Model Building"
         self.model = dnn_6.Q_DNN(self.state_dimention,200,self.num_of_actions)
-        self.model.to_gpu()
+        self.model.to_gpu(self.gpu_id)
         
         
         self.model_target = copy.deepcopy(self.model)
@@ -78,11 +79,11 @@ class DQN_class:
             target[i, action_index] = tmp_
 
         # TD-error clipping
-        td = Variable(cuda.to_gpu(target)) - Q  # TD error
+        td = Variable(cuda.to_gpu(target,self.gpu_id)) - Q  # TD error
         td_tmp = td.data + 1000.0 * (abs(td.data) <= 1)  # Avoid zero division
         td_clip = td * (abs(td.data) <= 1) + td/abs(td_tmp) * (abs(td.data) > 1)
 
-        zero_val = Variable(cuda.to_gpu(np.zeros((self.replay_size, self.num_of_actions), dtype=np.float32)))
+        zero_val = Variable(cuda.to_gpu(np.zeros((self.replay_size, self.num_of_actions), dtype=np.float32),self.gpu_id))
         loss = F.mean_squared_error(td_clip, zero_val)
         return loss, Q
 
@@ -125,8 +126,8 @@ class DQN_class:
                 s_dash_replay[i] = np.array(self.D[3][replay_index[i]], dtype=np.float32)
                 episode_end_replay[i] = self.D[4][replay_index[i]]
 
-            s_replay = cuda.to_gpu(s_replay)
-            s_dash_replay = cuda.to_gpu(s_dash_replay)
+            s_replay = cuda.to_gpu(s_replay,self.gpu_id)
+            s_dash_replay = cuda.to_gpu(s_dash_replay,self.gpu_id)
 
             # Gradient-based update
             self.model.cleargrads()
@@ -166,7 +167,7 @@ class DQN_class:
         self.model.to_cpu()
         with open(folder_name+'model'+str(epoch),'wb') as o:
             pickle.dump(self.model,o)
-        self.model.to_gpu()
+        self.model.to_gpu(self.gpu_id)
         self.optimizer.setup(self.model)
 
     def load_model(self, model):
@@ -174,20 +175,21 @@ class DQN_class:
             print "open " + model
             self.model = pickle.load(m)
             print 'load model'
-            self.model.to_gpu()
+            self.model.to_gpu(self.gpu_id)
             
     def get_model_copy(self):
         return copy.deepcopy(self.model)
         
     def model_to_gpu(self):
-        self.model.to_gpu()
+        self.model.to_gpu(self.gpu_id)
         
 class dqn_agent():  # RL-glue Process
     #lastAction = Action()
     policyFrozen = False
     learning_freq = 2#何日ごとに学習するか
     
-    def __init__(self,state_dimention=0,batchsize=0,historysize=0,epsilon_discount_size=0):
+    def __init__(self,gpu_id,state_dimention=0,batchsize=0,historysize=0,epsilon_discount_size=0):
+        self.gpu_id = gpu_id
         self.state_dimention = state_dimention
         self.batchsize = batchsize
         self.historysize = historysize
@@ -203,14 +205,14 @@ class dqn_agent():  # RL-glue Process
         self.max_Q_list = []
         self.reward_list = []
         # Pick a DQN from DQN_class
-        self.DQN = DQN_class(state_dimention=self.state_dimention,batchsize=self.batchsize,historysize=self.historysize)  # default is for "Pong".
+        self.DQN = DQN_class(gpu_id=self.gpu_id,state_dimention=self.state_dimention,batchsize=self.batchsize,historysize=self.historysize)  # default is for "Pong".
 
     def agent_start(self, observation):
 
         
         # Initialize State
         self.state = observation
-        state_ = cuda.to_gpu(np.asanyarray(self.state, dtype=np.float32))
+        state_ = cuda.to_gpu(np.asanyarray(self.state, dtype=np.float32),self.gpu_id)
 
         # Generate an Action e-greedy
         action, Q_now = self.DQN.e_greedy(state_, self.epsilon)
@@ -226,7 +228,7 @@ class dqn_agent():  # RL-glue Process
     def agent_step(self, reward, observation):
 
         self.state = observation
-        state_ = cuda.to_gpu(np.asanyarray(self.state, dtype=np.float32))
+        state_ = cuda.to_gpu(np.asanyarray(self.state, dtype=np.float32),self.gpu_id)
 
         # Exploration decays along the time sequence
         if self.policyFrozen is False:  # Learning ON/OFF
