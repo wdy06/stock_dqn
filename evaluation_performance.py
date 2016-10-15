@@ -89,7 +89,7 @@ class Evaluation():
         axis2.set_ylabel('epsilon')
         axis1.plot(self.ave_Q_list, label = "ave_max_Q")
         axis1.legend(loc = 'upper left')
-        axis2.plot(self.epsilon_list, label = 'epsilon', color = 'r')
+        axis2.plot(self.epsilon_list, label = 'epsilon', color = 'g')
         axis2.legend()
         filename = self.result_folder + "log_ave_max_Q.png"
         plt.grid(which='major')
@@ -105,7 +105,7 @@ class Evaluation():
         reward_ema = ta.EMA(np.array(self.ave_reward_list,dtype='f8'),timeperiod=10)
         axis1.plot(reward_ema, color = 'r')
         axis1.legend(loc = 'upper left')
-        axis2.plot(self.epsilon_list, label = 'epsilon')
+        axis2.plot(self.epsilon_list, label = 'epsilon', color = 'g')
         axis2.legend()
         filename = self.result_folder + "log_ave_reward.png"
         plt.grid(which='major')
@@ -121,7 +121,7 @@ class Evaluation():
         train_ema = ta.EMA(np.array(self.train_ave_profit_list,dtype='f8'),timeperiod=10)
         axis1.plot(train_ema, color = 'r')
         axis1.legend(loc = 'upper left')
-        axis2.plot(self.epsilon_list, label = 'epsilon')
+        axis2.plot(self.epsilon_list, label = 'epsilon', color = 'g')
         axis2.legend()
         filename = self.result_folder + "log_ave_train_profit.png"
         plt.grid(which='major')
@@ -137,7 +137,7 @@ class Evaluation():
         test_ema = ta.EMA(np.array(self.test_ave_profit_list,dtype='f8'),timeperiod=10)
         axis1.plot(test_ema, color = 'r')
         axis1.legend(loc = 'upper left')
-        axis2.plot(self.epsilon_list, label = 'epsilon')
+        axis2.plot(self.epsilon_list, label = 'epsilon', color = 'g')
         axis2.legend()
         filename = self.result_folder + "log_ave_test_profit.png"
         plt.savefig(filename)
