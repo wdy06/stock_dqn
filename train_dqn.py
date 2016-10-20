@@ -44,6 +44,8 @@ parser.add_argument('--u_stoch', '-stoch',type=int,default=1,
                     help='use stoch or no')
 parser.add_argument('--u_wil', '-wil',type=int,default=1,
                     help='use wil or no')
+parser.add_argument('--targetFlag', '-tf',type=int,default=1,
+                    help='target flag')
                     
 args = parser.parse_args()
 
@@ -59,6 +61,9 @@ if args.u_stoch == 0: u_stoch = False
 elif args.u_stoch == 1: u_stoch = True
 if args.u_wil == 0: u_wil = False
 elif args.u_wil == 1: u_wil = True
+
+if args.targetFlag == 0: targetFlag = False
+elif args.targetFlag == 1: targetFlag = True
 
 
 if args.gpu >= 0:
@@ -82,7 +87,7 @@ n_epoch = 1000
 
 start_time = time.clock()
 
-Agent = dqn_agent_nature.dqn_agent(gpu_id=args.gpu,state_dimention=args.input_num * args.channel + 2,batchsize=args.batchsize,historysize=args.historysize,epsilon_discount_size=args.epsilon_discount_size)
+Agent = dqn_agent_nature.dqn_agent(gpu_id=args.gpu,state_dimention=args.input_num * args.channel + 2,batchsize=args.batchsize,historysize=args.historysize,epsilon_discount_size=args.epsilon_discount_size,targetFlag = targetFlag)
 Agent.agent_init()
 
 market = env_stockmarket.StockMarket(END_TRAIN_DAY,START_TEST_DAY,u_vol=u_vol,u_ema=u_ema,u_rsi=u_rsi,u_macd=u_macd,u_stoch=u_stoch,u_wil=u_wil)
@@ -103,6 +108,7 @@ with open(folder + 'settings.txt', 'wb') as o:
     o.write('batchsize:' + str(args.batchsize) + '\n')
     o.write('historysize:' + str(args.historysize) + '\n')
     o.write('epsilon_discount_size:' + str(args.epsilon_discount_size) + '\n')
+    o.write('targetFlag:' + str(targetFlag) + '\n')
     
     
 files = os.listdir(args.data_folder)

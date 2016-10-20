@@ -25,7 +25,7 @@ class DQN_class:
     target_model_update_freq = 10**4  # Target update frequancy. original: 10^4
     #data_size = 10**5  # Data size of history. original: 10^6
     
-    def __init__(self, gpu_id, state_dimention,batchsize,historysize, enable_controller=[1, -1, 0]):
+    def __init__(self, gpu_id, state_dimention,batchsize,historysize, enable_controller=[1, -1, 0],targetFlag=False):
         self.gpu_id = gpu_id
         self.num_of_actions = len(enable_controller)
         self.enable_controller = enable_controller  # Default setting : "Pong"
@@ -33,6 +33,8 @@ class DQN_class:
         self.data_size = historysize
         
         self.state_dimention = state_dimention
+        self.targetFlag = targetFlag
+        
         print "Initializing DQN..."
         #	Initialization of Chainer 1.1.0 or older.
         #        print "CUDA init"
@@ -64,7 +66,7 @@ class DQN_class:
         Q = self.model.Q_func(s,train=True)  # Get Q-value
 
         # Generate Target Signals
-        tmp = self.model_target.Q_func(s_dash,train=True)  # Q(s',*)
+        tmp = self.model_target.Q_func(s_dash,train=self.targetFlag)  # Q(s',*)
         tmp = list(map(np.max, tmp.data.get()))  # max_a Q(s',a)
         max_Q_dash = np.asanyarray(tmp, dtype=np.float32)
         target = np.asanyarray(Q.data.get(), dtype=np.float32)
@@ -188,12 +190,13 @@ class dqn_agent():  # RL-glue Process
     policyFrozen = False
     learning_freq = 2#何日ごとに学習するか
     
-    def __init__(self,gpu_id,state_dimention=0,batchsize=0,historysize=0,epsilon_discount_size=0):
+    def __init__(self,gpu_id,state_dimention=0,batchsize=0,historysize=0,epsilon_discount_size=0,targetFlag = False):
         self.gpu_id = gpu_id
         self.state_dimention = state_dimention
         self.batchsize = batchsize
         self.historysize = historysize
         self.epsilon_discount_size = epsilon_discount_size
+        self.targetFlag = targetFlag
         
     def agent_init(self):
         # Some initializations for rlglue
@@ -205,7 +208,7 @@ class dqn_agent():  # RL-glue Process
         self.max_Q_list = []
         self.reward_list = []
         # Pick a DQN from DQN_class
-        self.DQN = DQN_class(gpu_id=self.gpu_id,state_dimention=self.state_dimention,batchsize=self.batchsize,historysize=self.historysize)  # default is for "Pong".
+        self.DQN = DQN_class(gpu_id=self.gpu_id,state_dimention=self.state_dimention,batchsize=self.batchsize,historysize=self.historysize,targetFlag=self.targetFlag)  # default is for "Pong".
 
     def agent_start(self, observation):
 
